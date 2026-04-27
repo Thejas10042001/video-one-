@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ICONS } from '../constants';
-import { MeetingContext, SalesStrategy, StrategyVideo, VideoScene } from '../types';
-import { generateSalesStrategy, generateVideoScript, generateVideoClip } from '../services/geminiService';
+import { MeetingContext, SalesStrategy } from '../types';
+import { generateSalesStrategy } from '../services/geminiService';
 import { googleService } from '../services/googleService';
 
 interface StrategyLabProps {
@@ -15,76 +15,9 @@ export const StrategyLab: React.FC<StrategyLabProps> = ({ activeDocuments, meeti
   const [isGenerating, setIsGenerating] = useState(false);
   const [refinementPrompt, setRefinementPrompt] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<'summary' | 'pillars' | 'wedge' | 'objections' | 'roadmap' | 'video'>('summary');
+  const [activeSection, setActiveSection] = useState<'summary' | 'pillars' | 'wedge' | 'objections' | 'roadmap'>('summary');
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-
-  // Video State
-  const [videoContent, setVideoContent] = useState<StrategyVideo | null>(null);
-  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
-  const [videoStatus, setVideoStatus] = useState<string>('');
-  const [activeVideoScene, setActiveVideoScene] = useState(0);
-
-  const handleGenerateVideo = async () => {
-    if (activeDocuments.length === 0) return;
-    
-    setIsGeneratingVideo(true);
-    setVideoStatus('Synthesizing Neural Script...');
-    try {
-      const topic = strategy?.executiveSummary || "Overview of Sales Strategy";
-      const result = await generateVideoScript(topic, meetingContext);
-      
-      const newVideo: StrategyVideo = {
-        id: `vid-${Date.now()}`,
-        title: result.title || "Strategic Insight",
-        description: result.description || "",
-        scenes: result.scenes || [],
-        timestamp: Date.now(),
-        status: 'generating'
-      };
-      
-      setVideoContent(newVideo);
-      
-      // Generate first clip immediately for preview
-      if (newVideo.scenes.length > 0) {
-        setVideoStatus('Generating High-Fidelity Visuals (Veo 3.1 Lite)...');
-        const videoUrl = await generateVideoClip(newVideo.scenes[0] as VideoScene);
-        
-        const updatedScenes = [...newVideo.scenes];
-        updatedScenes[0] = { ...updatedScenes[0], videoUrl };
-        
-        setVideoContent({
-          ...newVideo,
-          scenes: updatedScenes,
-          status: 'ready'
-        });
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError("Video generation protocol failed. Ensure API key has Veo permissions.");
-    } finally {
-      setIsGeneratingVideo(false);
-      setVideoStatus('');
-    }
-  };
-
-  const generateNextScene = async (index: number) => {
-    if (!videoContent || index >= videoContent.scenes.length || videoContent.scenes[index].videoUrl) return;
-    
-    setIsGeneratingVideo(true);
-    setVideoStatus(`Synthesizing Scene ${index + 1}...`);
-    try {
-      const videoUrl = await generateVideoClip(videoContent.scenes[index] as VideoScene);
-      const updatedScenes = [...videoContent.scenes];
-      updatedScenes[index] = { ...updatedScenes[index], videoUrl };
-      setVideoContent({ ...videoContent, scenes: updatedScenes });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsGeneratingVideo(false);
-      setVideoStatus('');
-    }
-  };
 
   const handleSendEmail = async () => {
     if (!strategy) return;
@@ -254,7 +187,6 @@ export const StrategyLab: React.FC<StrategyLabProps> = ({ activeDocuments, meeti
                 <NavButton active={activeSection === 'wedge'} onClick={() => setActiveSection('wedge')} icon={<ICONS.Efficiency />} label="Competitive Wedge" />
                 <NavButton active={activeSection === 'objections'} onClick={() => setActiveSection('objections')} icon={<ICONS.Security />} label="Objection Defense" />
                 <NavButton active={activeSection === 'roadmap'} onClick={() => setActiveSection('roadmap')} icon={<ICONS.Research />} label="Strategic Roadmap" />
-                <NavButton active={activeSection === 'video'} onClick={() => setActiveSection('video')} icon={<ICONS.Sparkles />} label="Strategic Video" />
                 
                 <div className="pt-8 mt-8 border-t border-slate-800 space-y-6">
                   <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 px-4">Refine Strategy</h4>
@@ -405,135 +337,6 @@ export const StrategyLab: React.FC<StrategyLabProps> = ({ activeDocuments, meeti
                             </div>
                           ))}
                         </div>
-                      </div>
-                    )}
-
-                    {activeSection === 'video' && (
-                      <div className="space-y-12">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-brand-accent/10 text-brand-accent rounded-2xl flex items-center justify-center">
-                              <ICONS.Sparkles className="w-6 h-6" />
-                            </div>
-                            <div>
-                               <h3 className="text-3xl font-black text-white tracking-tight">Strategic Video Generator</h3>
-                               <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Powered by Veo 3.1 Lite & Gemini 3.1 Pro</p>
-                            </div>
-                          </div>
-                          
-                          <button 
-                            onClick={handleGenerateVideo}
-                            disabled={isGeneratingVideo}
-                            className="px-6 py-3 bg-brand-accent hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-lg active:scale-95 flex items-center gap-2"
-                          >
-                            {isGeneratingVideo ? (
-                              <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                              <ICONS.Sparkles className="w-3 h-3" />
-                            )}
-                            {videoContent ? 'Regenerate Video' : 'Generate Strategy Video'}
-                          </button>
-                        </div>
-
-                        {isGeneratingVideo && !videoContent && (
-                          <div className="flex flex-col items-center justify-center py-20 space-y-6">
-                            <div className="relative">
-                               <div className="w-16 h-16 border-4 border-slate-800 border-t-brand-accent rounded-full animate-spin" />
-                            </div>
-                            <div className="text-center space-y-2">
-                               <p className="text-white font-black uppercase tracking-widest animate-pulse">{videoStatus}</p>
-                               <p className="text-slate-500 text-[10px] max-w-xs mx-auto">This may take up to 60 seconds as we synthesize neural visuals and strategic narratives.</p>
-                            </div>
-                          </div>
-                        )}
-
-                        {videoContent && (
-                          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-                            {/* Video Player */}
-                            <div className="xl:col-span-8 space-y-6">
-                              <div className="aspect-video bg-black rounded-[2rem] border border-slate-800 overflow-hidden relative shadow-2xl">
-                                {videoContent.scenes[activeVideoScene]?.videoUrl ? (
-                                  <video 
-                                    src={videoContent.scenes[activeVideoScene].videoUrl} 
-                                    controls 
-                                    autoPlay
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex flex-col items-center justify-center space-y-4 bg-slate-900/50">
-                                    <div className="w-12 h-12 border-4 border-slate-800 border-t-brand-accent rounded-full animate-spin" />
-                                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{videoStatus || 'Waiting for Scene Generation...'}</p>
-                                  </div>
-                                )}
-                                
-                                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
-                                   <h4 className="text-white font-black text-xl uppercase tracking-tight">{videoContent.scenes[activeVideoScene]?.title}</h4>
-                                   <p className="text-slate-300 text-sm italic mt-2">"{videoContent.scenes[activeVideoScene]?.script}"</p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-4">
-                                {videoContent.scenes.map((scene, i) => (
-                                  <button
-                                    key={scene.id}
-                                    onClick={() => {
-                                      setActiveVideoScene(i);
-                                      if (!scene.videoUrl) generateNextScene(i);
-                                    }}
-                                    className={`flex-1 p-4 rounded-2xl border transition-all text-left space-y-2 relative overflow-hidden ${activeVideoScene === i ? 'bg-slate-800 border-brand-accent shadow-lg shadow-brand-accent/10' : 'bg-slate-900 border-slate-800 hover:border-slate-700'}`}
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <span className={`text-[10px] font-black uppercase tracking-widest ${activeVideoScene === i ? 'text-brand-accent' : 'text-slate-500'}`}>Scene 0{i + 1}</span>
-                                      {scene.videoUrl ? <ICONS.Check className="w-3 h-3 text-emerald-500" /> : isGeneratingVideo && activeVideoScene === i ? <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : null}
-                                    </div>
-                                    <p className={`text-xs font-bold leading-tight ${activeVideoScene === i ? 'text-white' : 'text-slate-400'}`}>{scene.title}</p>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* Scene Details */}
-                            <div className="xl:col-span-4 space-y-6">
-                               <div className="bg-slate-900 border border-slate-800 rounded-[2rem] p-8 space-y-6">
-                                  <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 border-b border-slate-800 pb-4">Neural Directives</h4>
-                                  
-                                  <div className="space-y-4">
-                                    <div className="space-y-2">
-                                      <h5 className="text-[10px] font-black text-brand-accent uppercase">Narrative Script</h5>
-                                      <p className="text-sm font-medium text-slate-300 bg-slate-950 p-4 rounded-xl border border-slate-800 italic">
-                                        {videoContent.scenes[activeVideoScene]?.script}
-                                      </p>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                      <h5 className="text-[10px] font-black text-indigo-400 uppercase">Visual Prompt (Veo)</h5>
-                                      <p className="text-[11px] font-bold text-slate-400 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                                        {videoContent.scenes[activeVideoScene]?.visualDescription}
-                                      </p>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-800">
-                                       <div className="space-y-1">
-                                          <span className="text-[9px] font-black text-slate-600 uppercase">Resolution</span>
-                                          <p className="text-xs font-bold text-white uppercase">1080p (Lite)</p>
-                                       </div>
-                                       <div className="space-y-1">
-                                          <span className="text-[9px] font-black text-slate-600 uppercase">Duration</span>
-                                          <p className="text-xs font-bold text-white uppercase">{videoContent.scenes[activeVideoScene]?.duration}s</p>
-                                       </div>
-                                    </div>
-                                  </div>
-                               </div>
-
-                               <div className="p-6 bg-indigo-900/10 border border-indigo-900/30 rounded-2xl flex items-start gap-3">
-                                  <ICONS.Brain className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                                  <p className="text-[10px] font-bold text-indigo-300 leading-relaxed">
-                                    Our Cognitive Engine uses multiple reference points from your deal documents to generate strategically accurate visual metaphors.
-                                  </p>
-                               </div>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     )}
                   </motion.div>

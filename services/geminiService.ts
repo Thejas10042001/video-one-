@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type, Modality, GenerateContentResponse } from "@google/genai";
-import { AnalysisResult, MeetingContext, ThinkingLevel, DifficultyLevel, GPTMessage, AssessmentQuestion, AssessmentResult, QuestionType, ComprehensiveAvatarReport, StagedSimStage, VocalPersonaStructure, SalesStrategy, RoleplayQuestion, RoleplayEvaluation, VideoScene, StrategyVideo } from "../types";
+import { AnalysisResult, MeetingContext, ThinkingLevel, DifficultyLevel, GPTMessage, AssessmentQuestion, AssessmentResult, QuestionType, ComprehensiveAvatarReport, StagedSimStage, VocalPersonaStructure, SalesStrategy, RoleplayQuestion, RoleplayEvaluation } from "../types";
 
 // Upgraded thinking budget map for gemini-3.1-pro-preview capabilities
 const THINKING_LEVEL_MAP: Record<ThinkingLevel, number> = {
@@ -2398,104 +2398,5 @@ export async function generateFollowUpQuestions(
   } catch (error) {
     console.error("Follow-up generation failed:", error);
     return [];
-  }
-}
-
-export async function generateVideoScript(topic: string, context?: MeetingContext): Promise<Partial<StrategyVideo>> {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const modelName = 'gemini-3.1-pro-preview';
-
-  const contextStr = context ? `
-  DEAL CONTEXT:
-  Seller: ${context.sellerCompany}
-  Client: ${context.clientCompany}
-  Target Products: ${context.targetProducts}
-  Strategic Keywords: ${context.strategicKeywords.join(", ")}
-  ` : "";
-
-  const prompt = `Act as an Elite Sales Creative Director. 
-  Generate a high-fidelity video script for a "Strategy Highlight" video based on the following topic: "${topic}".
-  ${contextStr}
-
-  DIRECTIVES:
-  1. Structure the video into 3 distinct scenes: 1. The Hook (Problem), 2. The Solution (Value), 3. The Close (Action).
-  2. For each scene, provide:
-     - A title.
-     - A spoken script (what the narrator or avatar says).
-     - A detailed visual description (for an image/video generation model).
-  3. Keep the overall duration under 60 seconds (approx 15-20 seconds per scene).
-
-  Return ONLY a JSON object:
-  {
-    "title": "Short Impactful Title",
-    "description": "Brief summary of the video content",
-    "scenes": [
-      {
-        "title": "Scene Title",
-        "script": "The spoken words...",
-        "visualDescription": "Detailed cinematic visual prompt for a video generator model...",
-        "duration": 15
-      }
-    ]
-  }`;
-
-  try {
-    const response = await withRetry(() => ai.models.generateContent({
-      model: modelName,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        thinkingConfig: { thinkingBudget: 8000 }
-      }
-    }));
-    return safeJsonParse(response.text || "{}");
-  } catch (error) {
-    console.error("Video script generation failed:", error);
-    throw error;
-  }
-}
-
-export async function generateVideoClip(scene: VideoScene): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  // Veo 3.1 Lite is recommended for general video generation tasks.
-  const model = "veo-3.1-lite-generate-preview";
-
-  try {
-    // Check for API key in a real-world scenario (handled by window.aistudio in the skill)
-    // Here we assume it's available via getApiKey()
-    
-    let operation = await ai.models.generateVideos({
-      model: model,
-      prompt: scene.visualDescription,
-      config: {
-        numberOfVideos: 1,
-        resolution: '720p',
-        aspectRatio: '16:9'
-      }
-    });
-
-    // Poll for completion (the component should handle long polling with a state update usually, 
-    // but for this service we'll do the loop as per the skill)
-    while (!operation.done) {
-      await new Promise(resolve => setTimeout(resolve, 10000));
-      operation = await ai.operations.getVideosOperation({ operation: operation });
-    }
-
-    const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-    if (downloadLink) {
-       // Append the API key to the header to fetch the video
-       const response = await fetch(downloadLink, {
-         method: 'GET',
-         headers: {
-           'x-goog-api-key': getApiKey(),
-         },
-       });
-       const blob = await response.blob();
-       return URL.createObjectURL(blob);
-    }
-    return "";
-  } catch (error) {
-    console.error("Video generation failed:", error);
-    throw error;
   }
 }

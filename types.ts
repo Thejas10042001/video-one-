@@ -498,24 +498,6 @@ export interface UserPrivacy {
   neuralPrivacyAccepted?: boolean;
 }
 
-export interface VideoScene {
-  id: string;
-  title: string;
-  script: string;
-  visualDescription: string;
-  duration: number; // in seconds
-  videoUrl?: string; // API generated video
-}
-
-export interface StrategyVideo {
-  id: string;
-  title: string;
-  description: string;
-  scenes: VideoScene[];
-  timestamp: number;
-  status: 'draft' | 'generating' | 'ready' | 'error';
-}
-
 export interface ActivityLog {
   id: string;
   type: 'simulation' | 'upload' | 'login' | 'security' | 'integration';

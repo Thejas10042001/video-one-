@@ -218,11 +218,11 @@ const App: React.FC = () => {
     'strategy': {
       stepNumber: '02',
       label: 'Strategy Lab',
-      feature: 'Enterprise Strategy & Video Synthesis',
-      purpose: 'Generate high-fidelity sales strategies and neural video content based on deal context.',
-      howItHelps: 'Provides an actionable roadmap, competitive wedge, and immersive video assets to win the deal.',
-      audioText: 'Welcome to the Strategy Lab. This module synthesizes high-fidelity sales strategies and neural video content from your deal context. It provides an actionable roadmap, competitive wedge, and immersive video assets to win the deal.',
-      guideText: 'Synthesize and refine your enterprise sales strategy. Leverage the competitive wedge node or generate immersive neural videos to communicate complex value propositions.'
+      feature: 'Enterprise Strategy Synthesis',
+      purpose: 'Generate and refine high-fidelity sales strategies based on deal context.',
+      howItHelps: 'Provides an actionable roadmap and competitive wedge to win the deal.',
+      audioText: 'Welcome to the Strategy Lab. This module synthesizes high-fidelity sales strategies from your deal context. It provides an actionable roadmap and competitive wedge to win the deal.',
+      guideText: 'Synthesize and refine your enterprise sales strategy. Leverage the competitive wedge and objection defense nodes to build a winning roadmap.'
     },
     'qa': {
       stepNumber: '03',

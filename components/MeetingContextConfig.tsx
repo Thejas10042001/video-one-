@@ -107,6 +107,7 @@ export const MeetingContextConfig: React.FC<MeetingContextConfigProps> = ({
   const [isAnalyzingVoice, setIsAnalyzingVoice] = useState(false);
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [showVocalDirective, setShowVocalDirective] = useState(false);
+  const [showDemoVideo, setShowDemoVideo] = useState(false);
   const [showKycGuide, setShowKycGuide] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<StoredDocument | null>(null);
   const [activeSection, setActiveSection] = useState<'library' | 'core' | 'persona' | 'vocal'>('library');
@@ -488,6 +489,20 @@ OPERATIONAL CONSTRAINTS:
   const renderAllSections = () => {
     return (
       <div className="space-y-16">
+        <div className="flex justify-center mb-[-2rem] relative z-20">
+          <motion.button
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowDemoVideo(true)}
+            className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-full font-black text-xs uppercase tracking-widest shadow-2xl shadow-indigo-500/40 border border-indigo-400 group overflow-hidden relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+            <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+              <ICONS.Play className="w-3 h-3 fill-white" />
+            </div>
+            Watch Product Demo
+          </motion.button>
+        </div>
         {renderSectionNav()}
         
         <AnimatePresence mode="wait">
@@ -1213,6 +1228,73 @@ OPERATIONAL CONSTRAINTS:
                   >
                     Access KYC Generator <ICONS.ExternalLink className="w-5 h-5" />
                   </a>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showDemoVideo && (
+          <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-[200] flex items-center justify-center p-4 md:p-12">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              className="bg-slate-900 rounded-[3rem] shadow-[0_64px_128px_-16px_rgba(0,0,0,0.8)] border border-slate-800 w-full max-w-6xl aspect-video overflow-hidden relative flex flex-col"
+            >
+              <div className="absolute top-8 right-8 z-50">
+                <button 
+                  onClick={() => setShowDemoVideo(false)}
+                  className="p-4 bg-black/40 hover:bg-rose-500/20 text-white hover:text-rose-500 rounded-2xl transition-all border border-white/10 backdrop-blur-xl"
+                >
+                  <ICONS.X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Video Player Placeholder - In a real app this would be a Veo 3 generated video as requested */}
+              <div className="flex-1 bg-black flex items-center justify-center relative group">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60 pointer-events-none" />
+                
+                {/* 3D Realistic Professional Man Proxy */}
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-12 space-y-8">
+                  <div className="w-32 h-32 bg-indigo-600 rounded-full flex items-center justify-center animate-pulse shadow-[0_0_80px_rgba(99,102,241,0.5)]">
+                    <ICONS.Play className="w-12 h-12 text-white fill-white ml-2" />
+                  </div>
+                  <div className="max-w-2xl space-y-4">
+                    <h2 className="text-4xl font-black uppercase tracking-tighter text-white">SPIKED AI: Integrated Intelligence Onboarding</h2>
+                    <p className="text-xl text-slate-400 font-medium leading-relaxed">
+                      [VE3 GEN AI HIGH-FIDELITY DEMO] - Professional guide explaining Library Hub uploads, folder management, Mind Core Strategy KYC calibration, and Vocal Persona synthesis.
+                    </p>
+                    <div className="flex items-center justify-center gap-6 mt-8">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full border border-slate-700">
+                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">4K Ultra HD</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full border border-slate-700">
+                         <ICONS.Brain className="w-3 h-3 text-indigo-400" />
+                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Veo 3 Synthetic Motion</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Professional Video Controls Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 flex items-center justify-between text-white bg-gradient-to-t from-black/80 to-transparent">
+                  <div className="flex items-center gap-6">
+                    <button className="hover:scale-110 transition-transform"><ICONS.Play className="w-6 h-6 fill-white" /></button>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs font-mono">00:42 / 01:58</span>
+                      <div className="w-64 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="w-1/3 h-full bg-indigo-600" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <ICONS.Speaker className="w-5 h-5 opacity-60" />
+                    <ICONS.ExternalLink className="w-5 h-5 opacity-60" />
+                  </div>
                 </div>
               </div>
             </motion.div>
