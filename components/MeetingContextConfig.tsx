@@ -108,6 +108,8 @@ export const MeetingContextConfig: React.FC<MeetingContextConfigProps> = ({
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [showVocalDirective, setShowVocalDirective] = useState(false);
   const [showDemoVideo, setShowDemoVideo] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
   const [showKycGuide, setShowKycGuide] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<StoredDocument | null>(null);
   const [activeSection, setActiveSection] = useState<'library' | 'core' | 'persona' | 'vocal'>('library');
@@ -493,7 +495,21 @@ OPERATIONAL CONSTRAINTS:
           <motion.button
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setShowDemoVideo(true)}
+            onClick={() => {
+              setIsVideoLoading(true);
+              setVideoProgress(0);
+              const interval = setInterval(() => {
+                setVideoProgress(prev => {
+                  if (prev >= 100) {
+                    clearInterval(interval);
+                    setIsVideoLoading(false);
+                    setShowDemoVideo(true);
+                    return 100;
+                  }
+                  return prev + Math.floor(Math.random() * 15) + 5;
+                });
+              }, 400);
+            }}
             className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-full font-black text-xs uppercase tracking-widest shadow-2xl shadow-indigo-500/40 border border-indigo-400 group overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -1236,6 +1252,51 @@ OPERATIONAL CONSTRAINTS:
       </AnimatePresence>
 
       <AnimatePresence>
+        {isVideoLoading && (
+          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl z-[250] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex flex-col items-center gap-8"
+            >
+              <div className="relative w-48 h-48 flex items-center justify-center">
+                <svg className="w-full h-full -rotate-90">
+                  <circle
+                    cx="96"
+                    cy="96"
+                    r="88"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    fill="transparent"
+                    className="text-slate-800"
+                  />
+                  <motion.circle
+                    cx="96"
+                    cy="96"
+                    r="88"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    fill="transparent"
+                    strokeDasharray="552.92"
+                    animate={{ strokeDashoffset: 552.92 - (552.92 * Math.min(videoProgress, 100)) / 100 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="text-indigo-500"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-4xl font-black text-white">{Math.min(videoProgress, 100)}%</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mt-2">Loading Veo 3</span>
+                </div>
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-white uppercase tracking-widest">Synthesizing Product Demo</h3>
+                <p className="text-slate-400 text-sm font-medium">Generating realistic 3D human interaction layers...</p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
         {showDemoVideo && (
           <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-[200] flex items-center justify-center p-4 md:p-12">
             <motion.div
