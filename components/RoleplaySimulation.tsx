@@ -18,8 +18,8 @@ import {
   TrendingUp,
   MessageSquare
 } from 'lucide-react';
-import { RoleplayQuestion, RoleplayEvaluation, GPTMessage, MeetingContext } from '../types';
-import { generateRoleplayQuestions, generateRoleplayResponse, evaluateRoleplayAnswer, generateVoiceSample } from '../services/geminiService';
+import { ROLEPLAY_STEPS } from '../config/onboardingConfig';
+import { useOnboardingStore } from '../store/onboardingStore';
 
 const SCENARIOS = ['Sales Pitch', 'Negotiation', 'Investor Meeting', 'Discovery Call', 'Closing Session', 'Cold Call Simulation'];
 const ROLES = ['CEO', 'CFO', 'CTO', 'VP of Engineering', 'Procurement Manager', 'IT Director'];
@@ -221,6 +221,7 @@ export const RoleplaySimulation: React.FC<RoleplaySimulationProps> = ({ meetingC
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Scenario</label>
               <select 
+                id="roleplay-scenario-select"
                 value={scenario}
                 onChange={(e) => setScenario(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer"
@@ -264,6 +265,7 @@ export const RoleplaySimulation: React.FC<RoleplaySimulationProps> = ({ meetingC
           </div>
 
           <button 
+            id="tour-roleplay-start"
             onClick={handleGenerateQuestions}
             disabled={isGenerating}
             className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-indigo-500/20"
@@ -313,6 +315,26 @@ export const RoleplaySimulation: React.FC<RoleplaySimulationProps> = ({ meetingC
 
       {/* CENTER PANEL: INTERACTION */}
       <div className="flex-1 flex flex-col bg-slate-900/50 relative">
+        {/* Header with Explanation */}
+        <div id="roleplay-header-core" className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 backdrop-blur-md z-20">
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-indigo-600 rounded-lg">
+              <MessageSquare className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-white">Live Interaction Zone</h3>
+              <p className="text-[9px] font-bold text-slate-500 uppercase">Synchronized with Neural Core</p>
+            </div>
+          </div>
+          <button
+            onClick={() => startOnboarding('roleplay', ROLEPLAY_STEPS)}
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-slate-700/50 flex items-center gap-2"
+          >
+            <ICONS.Help className="w-4 h-4" />
+            Explain this feature
+          </button>
+        </div>
+
         {/* Video Overlay */}
         <div className="w-full aspect-video lg:h-64 bg-slate-950 relative overflow-hidden group">
           <video 
@@ -338,7 +360,7 @@ export const RoleplaySimulation: React.FC<RoleplaySimulationProps> = ({ meetingC
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 no-scrollbar">
+        <div id="roleplay-chat-area" className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 no-scrollbar">
           <AnimatePresence mode="popLayout">
             {messages.map((m, idx) => (
               <motion.div 
@@ -425,7 +447,7 @@ export const RoleplaySimulation: React.FC<RoleplaySimulationProps> = ({ meetingC
       </div>
 
       {/* RIGHT PANEL: METRICS */}
-      <div className="w-full lg:w-96 border-l border-slate-800 flex flex-col p-8 space-y-10 overflow-y-auto no-scrollbar bg-slate-950/50">
+      <div id="roleplay-metrics-panel" className="w-full lg:w-96 border-l border-slate-800 flex flex-col p-8 space-y-10 overflow-y-auto no-scrollbar bg-slate-950/50">
         
         <div className="space-y-6">
           <h3 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400 flex items-center gap-2">

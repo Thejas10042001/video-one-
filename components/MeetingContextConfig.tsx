@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MeetingContext, CustomerPersonaType, VoiceMode, StoredDocument, VocalPersonaStructure, UploadedFile } from '../types';
+import { useOnboardingStore } from '../store/onboardingStore';
+import { CONTEXT_FEATURE_STEPS } from '../config/onboardingConfig';
 import { ICONS } from '../constants';
 import { 
   extractMetadataFromDocument, 
@@ -107,9 +109,6 @@ export const MeetingContextConfig: React.FC<MeetingContextConfigProps> = ({
   const [isAnalyzingVoice, setIsAnalyzingVoice] = useState(false);
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [showVocalDirective, setShowVocalDirective] = useState(false);
-  const [showDemoVideo, setShowDemoVideo] = useState(false);
-  const [isVideoLoading, setIsVideoLoading] = useState(false);
-  const [videoProgress, setVideoProgress] = useState(0);
   const [showKycGuide, setShowKycGuide] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<StoredDocument | null>(null);
   const [activeSection, setActiveSection] = useState<'library' | 'core' | 'persona' | 'vocal'>('library');
@@ -118,6 +117,7 @@ export const MeetingContextConfig: React.FC<MeetingContextConfigProps> = ({
   const isCustomizedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
+  const { startOnboarding } = useOnboardingStore();
 
   const speak = (text: string) => {
     if (!audioEnabled) return;
@@ -456,7 +456,19 @@ OPERATIONAL CONSTRAINTS:
   };
 
   const renderSectionNav = () => (
-    <div className="flex flex-wrap gap-3 mb-16 p-3 bg-slate-800/50 rounded-[2.5rem] backdrop-blur-xl border border-slate-700/50 shadow-inner">
+    <div className="flex flex-col items-center mb-8 gap-6">
+      <div className="flex gap-4">
+        <button
+          id="tour-explain-btn"
+          onClick={() => startOnboarding('contextual', CONTEXT_FEATURE_STEPS)}
+          className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all border border-slate-700/50 flex items-center gap-2"
+        >
+          <ICONS.Help className="w-4 h-4" />
+          Explain this feature
+        </button>
+      </div>
+
+      <div className="flex flex-wrap gap-3 p-3 bg-slate-800/50 rounded-[2.5rem] backdrop-blur-xl border border-slate-700/50 shadow-inner w-full">
       {[
         { id: 'library', label: 'Library Hub', icon: <ICONS.Document className="w-4 h-4" /> },
         { id: 'core', label: 'Mind Core & Strategy', icon: <ICONS.Brain className="w-4 h-4" /> },
@@ -465,6 +477,7 @@ OPERATIONAL CONSTRAINTS:
       ].map((s) => (
         <motion.button
           key={s.id}
+          id={`tour-tab-${s.id}`}
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setActiveSection(s.id as any)}
@@ -485,40 +498,13 @@ OPERATIONAL CONSTRAINTS:
           {s.label}
         </motion.button>
       ))}
+      </div>
     </div>
   );
 
   const renderAllSections = () => {
     return (
       <div className="space-y-16">
-        <div className="flex justify-center mb-[-2rem] relative z-20">
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setIsVideoLoading(true);
-              setVideoProgress(0);
-              const interval = setInterval(() => {
-                setVideoProgress(prev => {
-                  if (prev >= 100) {
-                    clearInterval(interval);
-                    setIsVideoLoading(false);
-                    setShowDemoVideo(true);
-                    return 100;
-                  }
-                  return prev + Math.floor(Math.random() * 15) + 5;
-                });
-              }, 400);
-            }}
-            className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-full font-black text-xs uppercase tracking-widest shadow-2xl shadow-indigo-500/40 border border-indigo-400 group overflow-hidden relative"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
-              <ICONS.Play className="w-3 h-3 fill-white" />
-            </div>
-            Watch Product Demo
-          </motion.button>
-        </div>
         {renderSectionNav()}
         
         <AnimatePresence mode="wait">
@@ -545,6 +531,7 @@ OPERATIONAL CONSTRAINTS:
                         <ICONS.Research /> Library Selection
                       </h3>
                       <button
+                        id="tour-unified-synthesis"
                         onClick={handleUnifiedSynthesis}
                         disabled={isExtracting || (selectedLibraryDocIds.length === 0 && files.length === 0)}
                         className="px-6 py-3 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-lg active:scale-95 flex items-center gap-2"
@@ -614,6 +601,7 @@ OPERATIONAL CONSTRAINTS:
                             onChange={handleKycFileChange}
                           />
                           <select 
+                            id="tour-kyc-select"
                             value={context.kycDocId || ""} 
                             onChange={(e) => handleKycChange(e.target.value)}
                             className={`flex-1 bg-slate-800 border-4 rounded-[2rem] px-8 py-6 text-xl font-bold text-white outline-none transition-all shadow-xl ${isExtracting ? 'border-indigo-300 opacity-50 cursor-wait' : 'border-slate-700 focus:border-indigo-500'}`}
@@ -680,16 +668,16 @@ OPERATIONAL CONSTRAINTS:
                          <div className="text-indigo-500"><ICONS.Trophy /></div>
                          <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Seller Detail</h4>
                       </div>
-                      <Input label="Seller Company" value={context.sellerCompany} onChange={v => handleChange('sellerCompany', v)} placeholder="Acme Corp" />
-                      <Input label="Seller Name" value={context.sellerNames} onChange={v => handleChange('sellerNames', v)} placeholder="John Doe, Jane Smith" />
+                      <Input id="tour-seller-company" label="Seller Company" value={context.sellerCompany} onChange={v => handleChange('sellerCompany', v)} placeholder="Acme Corp" />
+                      <Input id="tour-seller-name" label="Seller Name" value={context.sellerNames} onChange={v => handleChange('sellerNames', v)} placeholder="John Doe, Jane Smith" />
                     </div>
                     <div className="space-y-6">
                       <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
                          <div className="text-indigo-500"><ICONS.ROI /></div>
                          <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Client Detail</h4>
                       </div>
-                      <Input label="Client Company" value={context.clientCompany} onChange={v => handleChange('clientCompany', v)} placeholder="Global Industries" />
-                      <Input label="Client Name" value={context.clientNames} onChange={v => handleChange('clientNames', v)} placeholder="Robert Brown, Sarah Wilson" />
+                      <Input id="tour-client-company" label="Client Company" value={context.clientCompany} onChange={v => handleChange('clientCompany', v)} placeholder="Global Industries" />
+                      <Input id="tour-client-name" label="Client Name" value={context.clientNames} onChange={v => handleChange('clientNames', v)} placeholder="Robert Brown, Sarah Wilson" />
                     </div>
                     <div className="space-y-6">
                       <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
@@ -740,6 +728,7 @@ OPERATIONAL CONSTRAINTS:
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Meeting Focus & Strategic Objective</label>
                       <textarea 
+                        id="tour-meeting-focus"
                         value={context.meetingFocus}
                         onChange={e => handleChange('meetingFocus', e.target.value)}
                         className="w-full bg-slate-800 border-2 border-slate-700 rounded-[2rem] px-8 py-6 text-base font-semibold text-white outline-none focus:border-indigo-500 focus:bg-slate-900 transition-all shadow-inner min-h-[150px] placeholder:text-slate-600"
@@ -805,9 +794,10 @@ OPERATIONAL CONSTRAINTS:
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {PERSONAS.map((p) => (
+                  {PERSONAS.map((p, index) => (
                     <button
                       key={p.type}
+                      id={`tour-persona-btn-${index}`}
                       onClick={() => handleChange('persona', p.type)}
                       className={`p-8 rounded-[2.5rem] border-2 text-left transition-all relative overflow-hidden group ${context.persona === p.type ? 'bg-indigo-600 border-indigo-600 text-white shadow-2xl scale-[1.02]' : 'bg-slate-900/50 border-slate-800 hover:border-indigo-700 shadow-sm'}`}
                     >
@@ -850,6 +840,7 @@ OPERATIONAL CONSTRAINTS:
                   ].map((m) => (
                     <button
                       key={m.id}
+                      id={`tour-vocal-mode-${m.id}`}
                       onClick={() => handleChange('voiceMode', m.id as any)}
                       className={`flex-1 flex items-center justify-center gap-3 py-4 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                         context.voiceMode === m.id 
@@ -1251,118 +1242,6 @@ OPERATIONAL CONSTRAINTS:
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {isVideoLoading && (
-          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl z-[250] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="flex flex-col items-center gap-8"
-            >
-              <div className="relative w-48 h-48 flex items-center justify-center">
-                <svg className="w-full h-full -rotate-90">
-                  <circle
-                    cx="96"
-                    cy="96"
-                    r="88"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="transparent"
-                    className="text-slate-800"
-                  />
-                  <motion.circle
-                    cx="96"
-                    cy="96"
-                    r="88"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="transparent"
-                    strokeDasharray="552.92"
-                    animate={{ strokeDashoffset: 552.92 - (552.92 * Math.min(videoProgress, 100)) / 100 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="text-indigo-500"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-black text-white">{Math.min(videoProgress, 100)}%</span>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mt-2">Loading Veo 3</span>
-                </div>
-              </div>
-              <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-white uppercase tracking-widest">Synthesizing Product Demo</h3>
-                <p className="text-slate-400 text-sm font-medium">Generating realistic 3D human interaction layers...</p>
-              </div>
-            </motion.div>
-          </div>
-        )}
-
-        {showDemoVideo && (
-          <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-[200] flex items-center justify-center p-4 md:p-12">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 40 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="bg-slate-900 rounded-[3rem] shadow-[0_64px_128px_-16px_rgba(0,0,0,0.8)] border border-slate-800 w-full max-w-6xl aspect-video overflow-hidden relative flex flex-col"
-            >
-              <div className="absolute top-8 right-8 z-50">
-                <button 
-                  onClick={() => setShowDemoVideo(false)}
-                  className="p-4 bg-black/40 hover:bg-rose-500/20 text-white hover:text-rose-500 rounded-2xl transition-all border border-white/10 backdrop-blur-xl"
-                >
-                  <ICONS.X className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* Video Player Placeholder - In a real app this would be a Veo 3 generated video as requested */}
-              <div className="flex-1 bg-black flex items-center justify-center relative group">
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60 pointer-events-none" />
-                
-                {/* 3D Realistic Professional Man Proxy */}
-                <div className="w-full h-full flex flex-col items-center justify-center text-center p-12 space-y-8">
-                  <div className="w-32 h-32 bg-indigo-600 rounded-full flex items-center justify-center animate-pulse shadow-[0_0_80px_rgba(99,102,241,0.5)]">
-                    <ICONS.Play className="w-12 h-12 text-white fill-white ml-2" />
-                  </div>
-                  <div className="max-w-2xl space-y-4">
-                    <h2 className="text-4xl font-black uppercase tracking-tighter text-white">SPIKED AI: Integrated Intelligence Onboarding</h2>
-                    <p className="text-xl text-slate-400 font-medium leading-relaxed">
-                      [VE3 GEN AI HIGH-FIDELITY DEMO] - Professional guide explaining Library Hub uploads, folder management, Mind Core Strategy KYC calibration, and Vocal Persona synthesis.
-                    </p>
-                    <div className="flex items-center justify-center gap-6 mt-8">
-                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full border border-slate-700">
-                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">4K Ultra HD</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full border border-slate-700">
-                         <ICONS.Brain className="w-3 h-3 text-indigo-400" />
-                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Veo 3 Synthetic Motion</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Professional Video Controls Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 flex items-center justify-between text-white bg-gradient-to-t from-black/80 to-transparent">
-                  <div className="flex items-center gap-6">
-                    <button className="hover:scale-110 transition-transform"><ICONS.Play className="w-6 h-6 fill-white" /></button>
-                    <div className="flex items-center gap-4">
-                      <span className="text-xs font-mono">00:42 / 01:58</span>
-                      <div className="w-64 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        <div className="w-1/3 h-full bg-indigo-600" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <ICONS.Speaker className="w-5 h-5 opacity-60" />
-                    <ICONS.ExternalLink className="w-5 h-5 opacity-60" />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
       <div className="min-h-[600px]">
         {renderAllSections()}
       </div>
@@ -1408,10 +1287,11 @@ const VocalTrait = ({ label, val, color }: { label: string, val: string, color: 
   </div>
 );
 
-const Input = ({ label, value, onChange, placeholder, isLarge }: { label: string; value: string; onChange: (v: string) => void; placeholder: string, isLarge?: boolean }) => (
+const Input = ({ id, label, value, onChange, placeholder, isLarge }: { id?: string; label: string; value: string; onChange: (v: string) => void; placeholder: string, isLarge?: boolean }) => (
   <div className="space-y-2">
     {label && <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">{label}</label>}
     <input
+      id={id}
       type="text"
       value={value}
       onChange={e => onChange(e.target.value)}

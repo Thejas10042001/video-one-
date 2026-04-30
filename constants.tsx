@@ -79,6 +79,12 @@ export const ICONS = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
     </svg>
   ),
+  Rocket: ({ className }: { className?: string } = {}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.585 15.585a6.267 6.267 0 001.189-3.46c0-.503-.058-1.004-.173-1.488L15.585 15.585zM15.585 15.585l-1.973 1.973M15.585 15.585c-.484.115-.985.173-1.488.173a6.267 6.267 0 01-3.46-1.189L15.585 15.585zM10.637 10.637a6.267 6.267 0 013.46-1.189c.503 0 1.004.058 1.488.173l-4.948 5.476a6.267 6.267 0 01-1.189-3.46c0-.503.058-1.004.173-1.488l4.476 4.948z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.585 15.585l1.973-1.973M17.558 13.612l3.442-3.442c.86-.86.86-2.254 0-3.114a2.202 2.202 0 00-3.114 0l-3.442 3.442M15.585 15.585l-1.973 1.973M13.612 17.558l-3.442 3.442c-.86.86-2.254.86-3.114 0a2.202 2.202 0 010-3.114l3.442-3.442M15.585 15.585c1.488-.115 1.989-.173 3.46 1.189l.341.341c.43.43.43 1.127 0 1.557l-1.698 1.698a1.101 1.101 0 01-1.557 0l-.341-.341c-1.362-1.471-1.304-1.972-1.189-3.46M15.585 15.585c-1.488.115-1.989.173-3.46-1.189l-.341-.341a1.101 1.101 0 00-1.557 0l-1.698 1.698a1.101 1.101 0 000 1.557l.341.341c1.362 1.471 1.304 1.972 1.189 3.46M4.5 19.5l2-2m-2 0l2 2" />
+    </svg>
+  ),
   Pineapple: ({ className }: { className?: string } = {}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41M12 7a5 5 0 100 10 5 5 0 000-10z" />

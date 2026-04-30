@@ -4,6 +4,9 @@ import { ICONS } from '../constants';
 import { performCognitiveSearchStream, generateDynamicSuggestions, CognitiveSearchResult } from '../services/geminiService';
 import { MeetingContext } from '../types';
 
+import { SEARCH_STEPS } from '../config/onboardingConfig';
+import { useOnboardingStore } from '../store/onboardingStore';
+
 const FormattedText: FC<{ text: string }> = ({ text }) => {
   const lines = text.split('\n');
   return (
@@ -62,6 +65,7 @@ export const CognitiveSearch: FC<CognitiveSearchProps> = ({ activeDocuments, con
   const [isFromCache, setIsFromCache] = useState(false);
 
   const searchCache = useRef<Map<string, CognitiveSearchResult>>(new Map());
+  const { startOnboarding } = useOnboardingStore();
 
   const contextFingerprint = useMemo(() => {
     return JSON.stringify({
@@ -221,11 +225,22 @@ export const CognitiveSearch: FC<CognitiveSearchProps> = ({ activeDocuments, con
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-slate-900 rounded-[3rem] p-12 shadow-2xl border border-slate-800 backdrop-blur-xl">
+      <div className="bg-slate-900 rounded-[3rem] p-12 shadow-2xl border border-slate-800 backdrop-blur-xl relative">
+        {/* Explanation Trigger */}
+        <div className="absolute top-8 right-12 z-20">
+          <button
+            onClick={() => startOnboarding('search', SEARCH_STEPS)}
+            className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all border border-slate-700/50 flex items-center gap-3 shadow-xl"
+          >
+            <ICONS.Help className="w-4 h-4" />
+            Explain this feature
+          </button>
+        </div>
+
         <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-6">
             <div className="p-4 bg-indigo-600 text-white rounded-[1.5rem] shadow-2xl shadow-none"><ICONS.Search className="w-6 h-6" /></div>
-            <div>
+            <div id="cognitive-search-header">
               <h2 className="text-3xl font-black text-white tracking-tighter uppercase">Cognitive Answering Hub</h2>
               <p className="text-[11px] text-slate-500 font-black uppercase tracking-[0.4em] mt-2">Verified intelligence from <strong className="text-indigo-400">Pro Reasoning Core</strong></p>
             </div>
@@ -247,6 +262,7 @@ export const CognitiveSearch: FC<CognitiveSearchProps> = ({ activeDocuments, con
             className="w-full bg-slate-800/50 border-2 border-slate-800 rounded-[2.2rem] px-10 py-8 text-xl focus:border-indigo-500 focus:bg-slate-800 outline-none transition-all pr-48 font-medium shadow-inner text-white"
           />
           <button 
+            id="tour-search-analyze"
             type="submit"
             disabled={isSearching || !query.trim()}
             className="absolute right-4 top-4 bottom-4 px-12 rounded-[1.8rem] bg-indigo-600 text-white font-black uppercase tracking-[0.2em] text-[11px] hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-indigo-500/20 flex items-center gap-3"

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ICONS } from '../constants';
 import { generateAssessmentQuestions, evaluateAssessment, generatePitchAudio, decodeAudioData } from '../services/geminiService';
 import { AssessmentQuestion, AssessmentResult, QuestionType, DifficultyLevel } from '../types';
+import { ASSIGNMENT_STEPS } from '../config/onboardingConfig';
+import { useOnboardingStore } from '../store/onboardingStore';
 
 const MetricScale = ({ label, value, colorClass = "bg-indigo-600" }: { label: string, value: number, colorClass?: string }) => (
   <div className="space-y-2">
@@ -88,6 +90,7 @@ interface AssessmentLabProps {
 type Perspective = 'document' | 'customer';
 
 export const AssessmentLab: React.FC<AssessmentLabProps> = ({ activeDocuments, onStartSimulation }) => {
+  const { startOnboarding } = useOnboardingStore();
   const [stage, setStage] = useState<'config' | 'running' | 'results'>('config');
   const [config, setConfig] = useState<{
     mcq: number;
@@ -385,8 +388,17 @@ export const AssessmentLab: React.FC<AssessmentLabProps> = ({ activeDocuments, o
               <ICONS.Trophy className="w-10 h-10" />
             </div>
             <div>
-              <h2 className="text-4xl font-black text-white tracking-tighter uppercase">Assignment Lab Configuration</h2>
-              <p className="text-slate-400 font-black uppercase text-[11px] tracking-[0.4em] mt-2">Pressure-test your document mastery</p>
+              <h2 id="persona-lab-header" className="text-4xl font-black text-white tracking-tighter uppercase">Assignment Lab Configuration</h2>
+              <div className="flex items-center gap-4 mt-2">
+                <p className="text-slate-400 font-black uppercase text-[11px] tracking-[0.4em]">Pressure-test your document mastery</p>
+                <button
+                  onClick={() => startOnboarding('persona', ASSIGNMENT_STEPS)}
+                  className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all border border-slate-700/50 flex items-center gap-2"
+                >
+                  <ICONS.Help className="w-3 h-3" />
+                  Explain this feature
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -464,6 +476,7 @@ export const AssessmentLab: React.FC<AssessmentLabProps> = ({ activeDocuments, o
         </div>
 
         <button 
+          id="tour-initiate-btn"
           onClick={() => handleStart()}
           disabled={isGenerating || activeDocuments.length === 0}
           className={`w-full py-10 rounded-[3rem] font-black text-2xl uppercase tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-6 ${isGenerating ? 'bg-slate-800 text-slate-400' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.01] active:scale-95 shadow-indigo-500/20'}`}

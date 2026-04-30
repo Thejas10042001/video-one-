@@ -569,6 +569,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Knowledge Hub</h4>
             <div className="relative">
               <button 
+                id="tour-add-folder-btn"
                 onClick={() => setShowFolderOptions(!showFolderOptions)}
                 className="p-2 hover:bg-slate-800 rounded-xl text-indigo-400 transition-colors"
                 title="Folder Options"
@@ -611,7 +612,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
           </div>
 
           <div className="space-y-1">
-            {mainFolders.map((folder) => {
+            {mainFolders.map((folder, index) => {
               const isActive = activeFolderId === folder.id;
               const isExpanded = expandedFolders[folder.id];
               const isDragOver = dragOverFolderId === folder.id;
@@ -622,6 +623,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
               return (
                 <div key={folder.id} className="space-y-1">
                   <div 
+                    id={index === 0 ? "tour-folder-item-0" : undefined}
                     className="group relative flex items-center gap-1"
                     onDragOver={(e) => onDragOver(e, folder.id)}
                     onDragLeave={onDragLeave}
@@ -703,13 +705,14 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                   {/* Render Sub-folders */}
                   {children.length > 0 && isExpanded && (
                     <div className="ml-8 pl-2 border-l border-slate-800 space-y-1">
-                      {children.map(sub => {
+                      {children.map((sub, sIndex) => {
                         const isSubActive = activeFolderId === sub.id;
                         const isSubDragOver = dragOverFolderId === sub.id;
                         const isSubRenaming = renamingFolderId === sub.id;
                         const subCount = folderCounts[sub.id] || 0;
                         return (
                           <div 
+                            id={sIndex === 0 ? "tour-subfolder-item-0" : undefined}
                             key={sub.id} 
                             className="group relative flex items-center"
                             onDragOver={(e) => onDragOver(e, sub.id)}
@@ -812,6 +815,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                 )}
 
                 <input 
+                  id="tour-new-folder-input"
                   autoFocus
                   type="text"
                   value={newFolderName}
@@ -822,6 +826,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                 />
                 <div className="flex items-center gap-2">
                   <button 
+                    id="tour-create-folder-submit"
                     onClick={handleAddFolder}
                     disabled={folderType === 'sub' && !selectedParentId}
                     className="flex-1 py-2 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -931,7 +936,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                   className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"
                 >
                   <AnimatePresence mode="popLayout">
-                    {filteredDocuments.map((doc) => {
+                    {filteredDocuments.map((doc, index) => {
                       const isSelected = selectedIds.includes(doc.id);
                       const isMoving = movingDocId === doc.id;
                       const isPreviewing = previewDoc?.id === doc.id;
@@ -998,6 +1003,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                         </div>
 
                         <button 
+                          id={index === 0 ? "tour-doc-view-btn" : undefined}
                           onClick={(e) => { e.stopPropagation(); setViewingDoc(doc); }}
                           className="p-2.5 text-slate-400 hover:text-indigo-400 hover:bg-indigo-900/30 rounded-xl transition-all"
                           title="View & Edit Content"
@@ -1005,6 +1011,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                           <ICONS.Search className="w-4 h-4" />
                         </button>
                         <button 
+                          id={index === 0 ? "tour-doc-copy-btn" : undefined}
                           onClick={(e) => handleDuplicateDocument(e, doc)}
                           disabled={isSaving}
                           className="p-2.5 text-slate-400 hover:text-indigo-400 hover:bg-indigo-900/30 rounded-xl transition-all disabled:opacity-50"
@@ -1013,6 +1020,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                           <ICONS.Copy className="w-4 h-4" />
                         </button>
                         <button 
+                          id={index === 0 ? "tour-doc-delete-btn" : undefined}
                           onClick={(e) => handleDelete(e, doc.id)}
                           className="p-2.5 text-slate-400 hover:text-rose-400 hover:bg-rose-900/30 rounded-xl transition-all"
                           title="Delete Intelligence Node"
@@ -1129,6 +1137,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                       </div>
                       <div className="flex items-center gap-4">
                         <button 
+                          id="tour-doc-preview-edit-btn"
                           onClick={() => setViewingDoc(previewDoc)}
                           className="px-6 py-3 bg-slate-800 text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all border border-slate-700 flex items-center gap-2"
                         >

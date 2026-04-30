@@ -2,6 +2,18 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnalysisResult, CustomerPersonaType, GroomingEvaluation, MeetingContext } from '../types';
+import { useOnboardingStore } from '../store/onboardingStore';
+import { OnboardingStep } from '../types/onboarding';
+
+export const PRACTICE_SESSION_STEPS: OnboardingStep[] = [
+  {
+    id: 'practice-1',
+    target: '#tour-commence-btn',
+    text: 'Commence your interaction with the AI persona here.',
+    action: 'click',
+    position: 'top'
+  }
+];
 import { ICONS } from '../constants';
 import { GoogleGenAI, Modality, LiveServerMessage, Type } from '@google/genai';
 import { generatePitchAudio, decodeAudioData } from '../services/geminiService';
@@ -31,6 +43,7 @@ interface SavedGrooming {
 
 
 export const PracticeSession: React.FC<PracticeSessionProps> = ({ analysis, meetingContext, onStartSimulation }) => {
+  const { startOnboarding } = useOnboardingStore();
   const [sessionMode, setSessionMode] = useState<SessionMode>('roleplay');
   const [isActive, setIsActive] = useState(false);
   const [status, setStatus] = useState<'idle' | 'connecting' | 'active' | 'error' | 'analyzing'>('idle');
@@ -594,6 +607,13 @@ Target Products: ${meetingContext.targetProducts || 'Core solution suite'}
             <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">Neural Simulation Lab</h2>
             <div className="flex items-center gap-3 mt-1">
               <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.3em]">High-Fidelity Cognitive Roleplay & Performance Auditing</p>
+              <button
+                onClick={() => startOnboarding('contextual', PRACTICE_SESSION_STEPS)}
+                className="ml-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all border border-slate-700/50 flex items-center gap-2"
+              >
+                <ICONS.Help className="w-3 h-3" />
+                Explain
+              </button>
               <span className="w-1 h-1 rounded-full bg-slate-700"></span>
               <div className="flex items-center gap-1.5 px-2 py-0.5 bg-indigo-900/20 border border-indigo-900/30 rounded-md">
                 <ICONS.Shield className="w-2.5 h-2.5 text-indigo-400" />
@@ -835,6 +855,7 @@ Target Products: ${meetingContext.targetProducts || 'Core solution suite'}
             </div>
 
             <motion.button 
+              id="tour-commence-btn"
               whileHover={{ scale: 1.05, boxShadow: "0 25px 50px -12px rgba(79, 70, 229, 0.5)" }}
               whileTap={{ scale: 0.95 }}
               onClick={sessionMode === 'grooming' ? startGroomingSession : sessionMode === 'speech' ? startSpeechSession : startPractice} 

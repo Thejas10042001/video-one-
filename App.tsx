@@ -14,6 +14,9 @@ import { AvatarSimulationV2 } from './components/AvatarSimulationV2';
 import { AvatarSimulationStaged } from './components/AvatarSimulationStaged';
 import { RoleplaySimulation } from './components/RoleplaySimulation';
 import { HelpCenter } from './components/HelpCenter';
+import { OnboardingManager } from './components/onboarding/OnboardingManager';
+import { useOnboardingStore } from './store/onboardingStore';
+import { GLOBAL_TOUR_STEPS } from './config/onboardingConfig';
 import { SupportChatbot } from './components/SupportChatbot';
 import { AccountSettings } from './components/settings/AccountSettings';
 import { analyzeSalesContext, generateVoiceSample } from './services/geminiService';
@@ -155,6 +158,7 @@ const App: React.FC = () => {
   const [isSupportPage, setIsSupportPage] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [darkMode] = useState(true);
+  const { startOnboarding } = useOnboardingStore();
 
   useEffect(() => {
     if (user) {
@@ -759,6 +763,8 @@ const App: React.FC = () => {
         darkMode={darkMode}
         onOpenSettings={() => setShowSettings(true)}
       />
+      
+      <OnboardingManager />
 
       {showSettings && <AccountSettings onClose={() => setShowSettings(false)} />}
       
@@ -795,6 +801,18 @@ const App: React.FC = () => {
                       <SidebarBtn id="tour-tab-roleplay" active={activeTab === 'roleplay'} onClick={() => handleNodeClick('roleplay')} icon={<ICONS.Efficiency />} label={sidebarWidth > 180 ? "10 Role play" : ""} scale={sidebarFontScale} step="10" />
                     </div>
                   </div>
+
+                  {sidebarWidth > 180 && (
+                    <div className="px-4 pb-8 space-y-4">
+                      <button
+                        onClick={() => startOnboarding('global', GLOBAL_TOUR_STEPS)}
+                        className="w-full py-4 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-2 group"
+                      >
+                        <ICONS.Rocket className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                        Start Tour
+                      </button>
+                    </div>
+                  )}
 
                   {sidebarWidth > 180 && (
                     <motion.div 
@@ -1014,6 +1032,7 @@ const App: React.FC = () => {
           </main>
         </div>
       </div>
+      <OnboardingManager />
     </div>
       } />
     </Routes>

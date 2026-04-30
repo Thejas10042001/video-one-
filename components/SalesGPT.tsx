@@ -22,7 +22,8 @@ import {
   auth
 } from '../services/firebaseService';
 import { GPTMessage, GPTToolMode, MeetingContext, Citation, SalesGPTSession } from '../types';
-import { FileText, ExternalLink, X, MessageSquare, Plus, Trash2, Bell, History, Share2, Send, LogOut, Check, XCircle } from 'lucide-react';
+import { useOnboardingStore } from '../store/onboardingStore';
+import { GPT_STEPS } from '../config/onboardingConfig';
 
 interface SalesGPTProps {
   activeDocuments: { name: string; content: string }[];
@@ -66,6 +67,7 @@ const COGNITIVE_PRO_OPTIONS = [
 ];
 
 export const SalesGPT: FC<SalesGPTProps> = ({ activeDocuments, meetingContext, initialConversationId, sharedSession }) => {
+  const { startOnboarding } = useOnboardingStore();
   const [messages, setMessages] = useState<GPTMessage[]>([]);
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<GPTToolMode>('standard');
@@ -734,6 +736,18 @@ Executive Snapshot: ${meetingContext.executiveSnapshot}
       </aside>
 
       <div className="flex-1 flex flex-col relative overflow-hidden h-full bg-slate-950">
+        {/* Onboarding Trigger */}
+        <div className="absolute top-6 right-6 z-[60]">
+          <button
+            id="gpt-header-core"
+            onClick={() => startOnboarding('gpt', GPT_STEPS)}
+            className="px-4 py-2 bg-slate-900/80 backdrop-blur-md hover:bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-slate-700/50 flex items-center gap-2 shadow-2xl"
+          >
+            <ICONS.Help className="w-4 h-4" />
+            Explain this feature
+          </button>
+        </div>
+
         {/* Notification Toast */}
         <AnimatePresence>
           {showNotification && (
@@ -1192,7 +1206,7 @@ Executive Snapshot: ${meetingContext.executiveSnapshot}
       {/* Input Area */}
       <div className="w-full bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent z-20 pt-4 pb-6">
         <div className="max-w-4xl mx-auto px-6 md:px-12 space-y-4">
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="flex flex-wrap gap-2 justify-center" id="tour-gpt-mode-select">
              <ToolToggle active={mode === 'standard'} onClick={() => setMode('standard')} icon={<ICONS.Chat className="w-3 h-3" />} label="Fast Pulse" />
              <ToolToggle active={mode === 'cognitive'} onClick={() => setMode('cognitive')} icon={<ICONS.Search className="w-3 h-3" />} label="Cognitive" color="blue" />
              <ToolToggle active={mode === 'cognitive-pro'} onClick={() => setMode('cognitive-pro')} icon={<ICONS.Research className="w-3 h-3" />} label="Cognitive Pro" color="purple" />
@@ -1204,7 +1218,7 @@ Executive Snapshot: ${meetingContext.executiveSnapshot}
             <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-[2.5rem] blur opacity-0 group-focus-within:opacity-100 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-[2rem] shadow-2xl overflow-hidden focus-within:border-indigo-500/50 transition-all">
               <textarea 
-                id="tour-gpt-input"
+                id="tour-gpt-query"
                 rows={1}
                 value={input}
                 onChange={(e) => {
