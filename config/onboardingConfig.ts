@@ -271,3 +271,71 @@ export const SEARCH_STEPS: OnboardingStep[] = [
     position: 'top'
   }
 ];
+
+export const AVATAR1_STEPS: OnboardingStep[] = [
+  {
+    id: 'avatar1-1',
+    target: '#avatar1-header',
+    text: 'Avatar Simulation 1.0: Our baseline high-fidelity vocal environment. Practice real-time interactions with cognitive grounding from your deal documents.',
+    action: 'hover',
+    position: 'bottom'
+  },
+  {
+    id: 'avatar1-2',
+    target: '#avatar1-start-btn',
+    text: 'Initiate Simulation: Click here to start the session. Our AI will analyze your voice, sentiment, and biometric markers in real-time as you interact.',
+    action: 'hover',
+    position: 'top'
+  }
+];
+
+export const AVATAR2_STEPS: OnboardingStep[] = [
+  {
+    id: 'avatar2-1',
+    target: '#avatar2-header',
+    text: 'Avatar Simulation 2.0: The next-generation neural environment. This version features advanced persona mapping and micro-expression calibration for ultra-realistic deal practice.',
+    action: 'hover',
+    position: 'bottom'
+  },
+  {
+    id: 'avatar2-2',
+    target: '#avatar2-persona-CIO',
+    text: 'Persona Selection: Choose your target stakeholder. Each persona (CIO, CFO, IT Director) responds with unique logical frameworks and resistance levels based on their role.',
+    action: 'hover',
+    position: 'top'
+  }
+];
+
+export const STAGED_STEPS: OnboardingStep[] = [
+  {
+    id: 'staged-1',
+    target: '#staged-header',
+    text: 'Staged Simulation: This hub allows you to master specific sales stages independently. You can navigate through the 6 tactical stages to refine your situational reflexes.',
+    action: 'hover',
+    position: 'bottom'
+  },
+  {
+    id: 'staged-2',
+    target: '#staged-persona-btn-0',
+    text: 'Initiate Stage: Select a stage node to commence the targeted simulation. This is the ideal way to focus on specific deal hurdles like pricing or legal.',
+    action: 'hover',
+    position: 'top'
+  }
+];
+
+export const PRACTICE_STEPS: OnboardingStep[] = [
+  {
+    id: 'practice-1',
+    target: '#practice-header',
+    text: 'Grooming Lab: This is your verbal architecture node. Use this to practice your delivery and receive an elite audit on tone, grammar, and pacing.',
+    action: 'hover',
+    position: 'bottom'
+  },
+  {
+    id: 'practice-2',
+    target: '#tour-commence-btn',
+    text: 'Initiate Grooming: Start your verbal interaction here. Our AI auditor will analyze your delivery in real-time and provide actionable logic for mastery.',
+    action: 'hover',
+    position: 'top'
+  }
+];

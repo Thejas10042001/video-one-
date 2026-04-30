@@ -13,6 +13,8 @@ import {
 } from '../services/geminiService';
 import { saveSimulationHistory } from '../services/firebaseService';
 import { GPTMessage, MeetingContext, StagedSimStage, StoredDocument, ComprehensiveAvatarReport, BiometricTrace } from '../types';
+import { useOnboardingStore } from '../store/onboardingStore';
+import { STAGED_STEPS } from '../config/onboardingConfig';
 
 interface StageAttempt {
   question: string;
@@ -44,6 +46,7 @@ export const AvatarSimulationStaged: FC<{
   onContextChange: (ctx: MeetingContext) => void;
   onStartSimulation?: () => void;
 }> = ({ meetingContext, documents, onContextChange, onStartSimulation }) => {
+  const { startOnboarding } = useOnboardingStore();
   const [currentStage, setCurrentStage] = useState<StagedSimStage>('Ice Breakers');
   const [startStageChoice, setStartStageChoice] = useState<StagedSimStage>('Ice Breakers');
   const [messages, setMessages] = useState<GPTMessage[]>([]);
@@ -1140,7 +1143,9 @@ export const AvatarSimulationStaged: FC<{
       {!sessionActive ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center space-y-12 w-full mx-auto px-12 py-12">
            <div className="space-y-6 w-full">
-              <h2 className="text-6xl font-black tracking-tight text-white">Staged Simulation Hub</h2>
+              <div className="flex items-center justify-center gap-8">
+                <h2 id="staged-header" className="text-6xl font-black tracking-tight text-white">Staged Simulation Hub</h2>
+              </div>
               <p className="text-slate-400 text-2xl font-medium leading-relaxed w-full">
                 Advance through 6 tactical stages. Select your starting point below to begin the challenge.
               </p>
@@ -1171,7 +1176,7 @@ export const AvatarSimulationStaged: FC<{
                 return (
                   <button 
                     key={s} 
-                    id={i === 0 ? "tour-start-sim-btn" : undefined}
+                    id={i === 0 ? "staged-persona-btn-0" : undefined}
                     onClick={() => handleInitiate(s)}
                     className={`p-10 border-2 rounded-[2.5rem] text-left transition-all group flex flex-col gap-4 h-full ${isSelected ? 'bg-indigo-600 border-indigo-500 shadow-2xl scale-[1.03]' : 'bg-slate-900 border-slate-800 hover:border-indigo-400'}`}
                   >

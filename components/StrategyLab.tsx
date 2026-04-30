@@ -126,13 +126,6 @@ export const StrategyLab: React.FC<StrategyLabProps> = ({ activeDocuments, meeti
                   <ICONS.Brain className="w-5 h-5" />
                 </div>
                 <h2 id="strategy-lab-header" className="text-4xl font-display font-black text-white tracking-tighter uppercase">Strategy Lab</h2>
-                <button
-                  onClick={() => startOnboarding('strategy', STRATEGY_STEPS)}
-                  className="ml-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all border border-slate-700/50 flex items-center gap-2"
-                >
-                  <ICONS.Help className="w-3 h-3" />
-                  Explain this feature
-                </button>
               </div>
               <p className="text-slate-400 font-medium text-lg">Enterprise Sales Strategy Synthesis & Refinement</p>
             </div>

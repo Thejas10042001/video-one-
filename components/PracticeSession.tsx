@@ -3,6 +3,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnalysisResult, CustomerPersonaType, GroomingEvaluation, MeetingContext } from '../types';
 import { useOnboardingStore } from '../store/onboardingStore';
+import { PRACTICE_STEPS } from '../config/onboardingConfig';
 import { OnboardingStep } from '../types/onboarding';
 
 export const PRACTICE_SESSION_STEPS: OnboardingStep[] = [
@@ -604,16 +605,9 @@ Target Products: ${meetingContext.targetProducts || 'Core solution suite'}
             <ICONS.Brain className="w-8 h-8" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">Neural Simulation Lab</h2>
+            <h2 id="practice-header" className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">Neural Simulation Lab</h2>
             <div className="flex items-center gap-3 mt-1">
               <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.3em]">High-Fidelity Cognitive Roleplay & Performance Auditing</p>
-              <button
-                onClick={() => startOnboarding('contextual', PRACTICE_SESSION_STEPS)}
-                className="ml-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all border border-slate-700/50 flex items-center gap-2"
-              >
-                <ICONS.Help className="w-3 h-3" />
-                Explain
-              </button>
               <span className="w-1 h-1 rounded-full bg-slate-700"></span>
               <div className="flex items-center gap-1.5 px-2 py-0.5 bg-indigo-900/20 border border-indigo-900/30 rounded-md">
                 <ICONS.Shield className="w-2.5 h-2.5 text-indigo-400" />

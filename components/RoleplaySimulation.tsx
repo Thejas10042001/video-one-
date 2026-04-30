@@ -330,13 +330,6 @@ export const RoleplaySimulation: React.FC<RoleplaySimulationProps> = ({ meetingC
               <p className="text-[9px] font-bold text-slate-500 uppercase">Synchronized with Neural Core</p>
             </div>
           </div>
-          <button
-            onClick={() => startOnboarding('roleplay', ROLEPLAY_STEPS)}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-slate-700/50 flex items-center gap-2"
-          >
-            <ICONS.Help className="w-4 h-4" />
-            Explain this feature
-          </button>
         </div>
 
         {/* Video Overlay */}

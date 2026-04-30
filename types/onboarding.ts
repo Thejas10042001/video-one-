@@ -45,4 +45,4 @@ export interface OnboardingStep {
   onStepEnd?: () => void;
 }
 
-export type OnboardingMode = 'global' | 'contextual' | 'strategy' | 'persona' | 'gpt' | 'roleplay' | 'search' | null;
+export type OnboardingMode = 'global' | 'contextual' | 'strategy' | 'persona' | 'gpt' | 'roleplay' | 'search' | 'avatar1' | 'avatar2' | 'staged' | 'practice' | null;

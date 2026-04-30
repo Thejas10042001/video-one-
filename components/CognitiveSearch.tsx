@@ -226,17 +226,6 @@ export const CognitiveSearch: FC<CognitiveSearchProps> = ({ activeDocuments, con
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-slate-900 rounded-[3rem] p-12 shadow-2xl border border-slate-800 backdrop-blur-xl relative">
-        {/* Explanation Trigger */}
-        <div className="absolute top-8 right-12 z-20">
-          <button
-            onClick={() => startOnboarding('search', SEARCH_STEPS)}
-            className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all border border-slate-700/50 flex items-center gap-3 shadow-xl"
-          >
-            <ICONS.Help className="w-4 h-4" />
-            Explain this feature
-          </button>
-        </div>
-
         <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-6">
             <div className="p-4 bg-indigo-600 text-white rounded-[1.5rem] shadow-2xl shadow-none"><ICONS.Search className="w-6 h-6" /></div>

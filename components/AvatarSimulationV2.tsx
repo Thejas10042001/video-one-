@@ -12,6 +12,8 @@ import {
 } from '../services/geminiService';
 import { saveSimulationHistory } from '../services/firebaseService';
 import { GPTMessage, MeetingContext, SimPersonaV2, ComprehensiveAvatarReport, BiometricTrace } from '../types';
+import { AVATAR2_STEPS } from '../config/onboardingConfig';
+import { useOnboardingStore } from '../store/onboardingStore';
 
 interface AvatarSimulationV2Props {
   meetingContext: MeetingContext;
@@ -59,6 +61,7 @@ const SIMULATION_PRESETS = [
 ];
 
 export const AvatarSimulationV2: FC<AvatarSimulationV2Props> = ({ meetingContext, onContextChange, onStartSimulation }) => {
+  const { startOnboarding } = useOnboardingStore();
   const [persona, setPersona] = useState<SimPersonaV2 | null>(null);
   const [messages, setMessages] = useState<GPTMessage[]>([]);
   const [currentCaption, setCurrentCaption] = useState("");
@@ -953,7 +956,9 @@ export const AvatarSimulationV2: FC<AvatarSimulationV2Props> = ({ meetingContext
       {!sessionActive ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center space-y-12 max-w-5xl mx-auto px-12">
            <div className="space-y-6">
-              <h2 className="text-7xl font-black tracking-tight bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">Simulation 2.0</h2>
+              <div className="flex items-center justify-center gap-8">
+                <h2 id="avatar2-header" className="text-7xl font-black tracking-tight bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">Simulation 2.0</h2>
+              </div>
               <p className="text-slate-400 text-2xl font-medium leading-relaxed">Select a target persona to connect with a high-fidelity animated AI Human Bot.</p>
            </div>
 
@@ -998,7 +1003,7 @@ export const AvatarSimulationV2: FC<AvatarSimulationV2Props> = ({ meetingContext
 
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
               {(Object.keys(PERSONA_CONFIG) as SimPersonaV2[]).map((p) => (
-                <PersonaCardV2 key={p} type={p} onClick={() => handleInitiate(p)} />
+                <PersonaCardV2 key={p} type={p} id={p === 'CIO' ? 'avatar2-persona-CIO' : undefined} onClick={() => handleInitiate(p)} />
               ))}
            </div>
         </div>
@@ -1444,10 +1449,10 @@ export const AvatarSimulationV2: FC<AvatarSimulationV2Props> = ({ meetingContext
   );
 };
 
-const PersonaCardV2: FC<{ type: SimPersonaV2; onClick: () => void | Promise<void> }> = ({ type, onClick }) => {
+const PersonaCardV2: FC<{ type: SimPersonaV2; id?: string; onClick: () => void | Promise<void> }> = ({ type, id, onClick }) => {
   const config = PERSONA_CONFIG[type];
   return (
-    <button onClick={onClick} className="group p-1 bg-slate-900 border-2 border-slate-800 rounded-[3rem] hover:border-indigo-500 transition-all text-left flex flex-col h-full shadow-xl active:scale-95 duration-300">
+    <button id={id} onClick={onClick} className="group p-1 bg-slate-900 border-2 border-slate-800 rounded-[3rem] hover:border-indigo-500 transition-all text-left flex flex-col h-full shadow-xl active:scale-95 duration-300">
       <div className="aspect-[4/3] w-full rounded-[2.5rem] overflow-hidden mb-6 relative bg-slate-950 flex items-center justify-center">
          <div className="w-24 h-24 rounded-full bg-slate-900 flex items-center justify-center group-hover:scale-110 transition-transform">
             <ICONS.Brain className="w-12 h-12 text-slate-400 group-hover:text-indigo-400 transition-colors" />

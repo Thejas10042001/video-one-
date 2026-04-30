@@ -391,13 +391,6 @@ export const AssessmentLab: React.FC<AssessmentLabProps> = ({ activeDocuments, o
               <h2 id="persona-lab-header" className="text-4xl font-black text-white tracking-tighter uppercase">Assignment Lab Configuration</h2>
               <div className="flex items-center gap-4 mt-2">
                 <p className="text-slate-400 font-black uppercase text-[11px] tracking-[0.4em]">Pressure-test your document mastery</p>
-                <button
-                  onClick={() => startOnboarding('persona', ASSIGNMENT_STEPS)}
-                  className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all border border-slate-700/50 flex items-center gap-2"
-                >
-                  <ICONS.Help className="w-3 h-3" />
-                  Explain this feature
-                </button>
               </div>
             </div>
           </div>

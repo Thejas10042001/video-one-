@@ -16,7 +16,19 @@ import { RoleplaySimulation } from './components/RoleplaySimulation';
 import { HelpCenter } from './components/HelpCenter';
 import { OnboardingManager } from './components/onboarding/OnboardingManager';
 import { useOnboardingStore } from './store/onboardingStore';
-import { GLOBAL_TOUR_STEPS } from './config/onboardingConfig';
+import { 
+  GLOBAL_TOUR_STEPS, 
+  STRATEGY_STEPS, 
+  ASSIGNMENT_STEPS, 
+  GPT_STEPS, 
+  ROLEPLAY_STEPS, 
+  SEARCH_STEPS, 
+  AVATAR1_STEPS, 
+  AVATAR2_STEPS, 
+  STAGED_STEPS, 
+  PRACTICE_STEPS,
+  CONTEXT_FEATURE_STEPS
+} from './config/onboardingConfig';
 import { SupportChatbot } from './components/SupportChatbot';
 import { AccountSettings } from './components/settings/AccountSettings';
 import { analyzeSalesContext, generateVoiceSample } from './services/geminiService';
@@ -159,6 +171,21 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [darkMode] = useState(true);
   const { startOnboarding } = useOnboardingStore();
+
+  const startTabOnboarding = useCallback(() => {
+    switch (activeTab) {
+      case 'context': startOnboarding('contextual', CONTEXT_FEATURE_STEPS); break;
+      case 'strategy': startOnboarding('strategy', STRATEGY_STEPS); break;
+      case 'qa': startOnboarding('persona', ASSIGNMENT_STEPS); break;
+      case 'avatar-staged': startOnboarding('staged', STAGED_STEPS); break;
+      case 'avatar': startOnboarding('avatar1', AVATAR1_STEPS); break;
+      case 'avatar2': startOnboarding('avatar2', AVATAR2_STEPS); break;
+      case 'gpt': startOnboarding('gpt', GPT_STEPS); break;
+      case 'practice': startOnboarding('practice', PRACTICE_STEPS); break;
+      case 'roleplay': startOnboarding('roleplay', ROLEPLAY_STEPS); break;
+      default: break;
+    }
+  }, [activeTab, startOnboarding]);
 
   useEffect(() => {
     if (user) {
@@ -857,6 +884,15 @@ const App: React.FC = () => {
                       <h1 className="text-8xl md:text-9xl font-display font-black text-slate-900 dark:text-white tracking-tighter leading-none uppercase">
                         SPIKED<span className="text-brand-accent drop-shadow-[0_0_20px_rgba(244,63,94,0.5)]">AI</span>
                       </h1>
+                      <div className="flex justify-center mt-4">
+                        <button
+                          onClick={() => startOnboarding('contextual', CONTEXT_FEATURE_STEPS)}
+                          className="px-6 py-3 bg-slate-900/80 backdrop-blur-md hover:bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all border border-slate-700/50 flex items-center gap-3 shadow-2xl"
+                        >
+                          <ICONS.Help className="w-5 h-5 text-indigo-500" />
+                          Explain this feature
+                        </button>
+                      </div>
                       <motion.p 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -958,6 +994,13 @@ const App: React.FC = () => {
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="px-2 py-0.5 bg-brand-primary/10 text-brand-primary text-[9px] font-black rounded-md uppercase tracking-wider">Neural Node Active</span>
                                 <div className="w-1.5 h-1.5 bg-brand-secondary rounded-full animate-pulse"></div>
+                                <button
+                                  onClick={startTabOnboarding}
+                                  className="ml-3 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all border border-slate-700/50 flex items-center gap-2"
+                                >
+                                  <ICONS.Help className="w-3 h-3" />
+                                  Explain this feature
+                                </button>
                               </div>
                             </div>
                           </div>

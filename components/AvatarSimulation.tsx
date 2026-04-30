@@ -12,6 +12,8 @@ import {
 } from '../services/geminiService';
 import { saveSimulationHistory } from '../services/firebaseService';
 import { GPTMessage, MeetingContext, ComprehensiveAvatarReport, CustomerPersonaType, BiometricTrace } from '../types';
+import { AVATAR1_STEPS } from '../config/onboardingConfig';
+import { useOnboardingStore } from '../store/onboardingStore';
 
 interface AvatarSimulationProps {
   meetingContext: MeetingContext;
@@ -59,6 +61,7 @@ const MEETING_FOCUS_PRESETS = [
 ];
 
 export const AvatarSimulation: FC<AvatarSimulationProps> = ({ meetingContext, onContextChange, onStartSimulation }) => {
+  const { startOnboarding } = useOnboardingStore();
   const [messages, setMessages] = useState<GPTMessage[]>([]);
   const [currentCaption, setCurrentCaption] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -858,7 +861,9 @@ export const AvatarSimulation: FC<AvatarSimulationProps> = ({ meetingContext, on
               <AIAnimatedBotCIO emotion={facialEmotion} />
            </div>
            <div className="space-y-6">
-              <h2 className="text-6xl font-black tracking-tight bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">Initiate Presence: {meetingContext.clientNames || 'Executive CIO'}</h2>
+              <div className="flex items-center justify-center gap-6">
+                <h2 id="avatar1-header" className="text-6xl font-black tracking-tight bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">Initiate Presence: {meetingContext.clientNames || 'Executive CIO'}</h2>
+              </div>
               <p className="text-slate-400 text-2xl font-medium leading-relaxed">Connect with an animated AI Human Bot mapped to {meetingContext.clientNames || 'your target client'}. Internal neural audits active.</p>
               
               <div className="pt-4 space-y-6 w-full">
@@ -901,7 +906,7 @@ export const AvatarSimulation: FC<AvatarSimulationProps> = ({ meetingContext, on
                 </div>
               </div>
            </div>
-           <button onClick={handleInitiate} className="px-16 py-8 bg-indigo-600 text-white rounded-full font-black text-2xl uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">Activate Simulation</button>
+           <button id="avatar1-start-btn" onClick={handleInitiate} className="px-16 py-8 bg-indigo-600 text-white rounded-full font-black text-2xl uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">Activate Simulation</button>
         </div>
       ) : (
         <div className="flex-1 flex overflow-hidden">
