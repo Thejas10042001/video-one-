@@ -20,6 +20,9 @@ import {
 } from 'lucide-react';
 import { ROLEPLAY_STEPS } from '../config/onboardingConfig';
 import { useOnboardingStore } from '../store/onboardingStore';
+import { ICONS } from '../constants';
+import { RoleplayQuestion, RoleplayEvaluation, GPTMessage, MeetingContext } from '../types';
+import { generateRoleplayQuestions, generateRoleplayResponse, evaluateRoleplayAnswer, generateVoiceSample } from '../services/geminiService';
 
 const SCENARIOS = ['Sales Pitch', 'Negotiation', 'Investor Meeting', 'Discovery Call', 'Closing Session', 'Cold Call Simulation'];
 const ROLES = ['CEO', 'CFO', 'CTO', 'VP of Engineering', 'Procurement Manager', 'IT Director'];
@@ -33,6 +36,7 @@ interface RoleplaySimulationProps {
 
 export const RoleplaySimulation: React.FC<RoleplaySimulationProps> = ({ meetingContext, onStartSimulation }) => {
   // Config state
+  const { startOnboarding } = useOnboardingStore();
   const [scenario, setScenario] = useState(SCENARIOS[0]);
   const [role, setRole] = useState(ROLES[0]);
   const [persona, setPersona] = useState(PERSONAS[0]);

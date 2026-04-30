@@ -24,6 +24,21 @@ import {
 import { GPTMessage, GPTToolMode, MeetingContext, Citation, SalesGPTSession } from '../types';
 import { useOnboardingStore } from '../store/onboardingStore';
 import { GPT_STEPS } from '../config/onboardingConfig';
+import { 
+  FileText, 
+  ExternalLink, 
+  X, 
+  MessageSquare, 
+  Plus, 
+  Trash2, 
+  Bell, 
+  History, 
+  Share2, 
+  Send, 
+  LogOut, 
+  Check, 
+  XCircle 
+} from 'lucide-react';
 
 interface SalesGPTProps {
   activeDocuments: { name: string; content: string }[];
