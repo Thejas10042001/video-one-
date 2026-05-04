@@ -3,7 +3,6 @@ import { motion, AnimatePresence, useSpring, useMotionValue } from 'motion/react
 import { useOnboardingStore } from '../../store/onboardingStore';
 import { HeroExpression, HeroGesture } from '../../types/onboarding';
 import { HeroMascot } from './HeroMascot';
-import { RocketExhaust } from './RocketExhaust';
 
 export const OnboardingOverlay: React.FC = () => {
   const { isActive, currentSteps, currentStepIndex, isPaused } = useOnboardingStore();
@@ -14,7 +13,6 @@ export const OnboardingOverlay: React.FC = () => {
   // Hero Position Motion Values
   const heroX = useSpring(0, { damping: 20, stiffness: 80 });
   const heroY = useSpring(window.innerHeight, { damping: 20, stiffness: 80 });
-  const [heroPos, setHeroPos] = useState({ x: 0, y: window.innerHeight });
 
   const heroConfig = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -42,16 +40,6 @@ export const OnboardingOverlay: React.FC = () => {
       position: currentStep.hero.position || 'auto'
     };
   }, [currentStep]);
-
-  // Update canvas-based rocket exhaust position
-  useEffect(() => {
-    const unsubscribeX = heroX.on('change', (v) => setHeroPos(p => ({ ...p, x: v })));
-    const unsubscribeY = heroY.on('change', (v) => setHeroPos(p => ({ ...p, y: v })));
-    return () => {
-      unsubscribeX();
-      unsubscribeY();
-    };
-  }, [heroX, heroY]);
 
   useEffect(() => {
     if (isActive && currentStep) {
@@ -238,8 +226,7 @@ export const OnboardingOverlay: React.FC = () => {
         />
       </motion.div>
 
-      {/* Hero Mascot & Rocket Effect */}
-      <RocketExhaust isMoving={isMoving} position={heroPos} />
+      {/* Hero Mascot */}
       
       <motion.div
         style={{ x: heroX, y: heroY }}

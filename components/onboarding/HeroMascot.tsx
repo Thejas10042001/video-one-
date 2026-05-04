@@ -95,21 +95,6 @@ export const HeroMascot: React.FC<HeroMascotProps> = ({ expression, gesture, isM
           <g>
             <rect x="25" y="97" width="10" height="3" rx="1.5" fill="#6366f1" opacity="0.8" />
             <rect x="65" y="97" width="10" height="3" rx="1.5" fill="#6366f1" opacity="0.8" />
-            {/* Energy trails under wheels */}
-            {isMoving && (
-              <>
-                <motion.rect 
-                  x="20" y="97" width="15" height="1" fill="#6366f1"
-                  animate={{ x: [20, 10], opacity: [1, 0] }}
-                  transition={{ duration: 0.2, repeat: Infinity }}
-                />
-                <motion.rect 
-                  x="60" y="97" width="15" height="1" fill="#6366f1"
-                  animate={{ x: [60, 50], opacity: [1, 0] }}
-                  transition={{ duration: 0.2, repeat: Infinity }}
-                />
-              </>
-            )}
           </g>
         </motion.g>
 
