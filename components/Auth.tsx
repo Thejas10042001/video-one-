@@ -7,8 +7,11 @@ import {
   getAuthInstance
 } from '../services/firebaseService';
 import { ICONS } from '../constants';
+import { useOnboardingStore } from '../store/onboardingStore';
+import { USER_JOURNEY_STEPS } from '../config/onboardingConfig';
 
 export const Auth: React.FC = () => {
+  const { startOnboarding } = useOnboardingStore();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -104,6 +107,7 @@ export const Auth: React.FC = () => {
         </motion.div>
 
         <motion.div 
+          id="auth-card"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
@@ -111,7 +115,7 @@ export const Auth: React.FC = () => {
         >
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-rose-500 opacity-50"></div>
           
-          <div className="flex p-1.5 bg-slate-800/50 rounded-[2rem] mb-12 border border-slate-700/50">
+          <div className="flex p-1.5 bg-slate-800/50 rounded-[2rem] mb-8 border border-slate-700/50">
                 <button 
                   onClick={() => { setIsLogin(true); setError(null); }}
                   className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] transition-all duration-300 ${isLogin ? 'bg-slate-700 text-indigo-400 shadow-xl scale-[1.02]' : 'text-slate-400 hover:text-slate-300'}`}
@@ -125,6 +129,16 @@ export const Auth: React.FC = () => {
                   Join the Core
                 </button>
               </div>
+
+              <motion.button 
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => startOnboarding('journey', USER_JOURNEY_STEPS)}
+                className="w-full mb-8 py-4 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.3em] border border-indigo-500/30 flex items-center justify-center gap-4 transition-all group"
+              >
+                <span className="text-[14px]">👉</span>
+                User Journey
+              </motion.button>
 
               <AnimatePresence mode="wait">
                 {isLogin ? (

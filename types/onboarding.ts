@@ -8,7 +8,7 @@ export interface TooltipOffset {
 }
 
 export type HeroExpression = 'neutral' | 'happy' | 'thinking' | 'serious' | 'surprised' | 'explaining' | 'celebrating';
-export type HeroGesture = 'none' | 'point' | 'wave' | 'nod' | 'shrug' | 'skate';
+export type HeroGesture = 'none' | 'point' | 'wave' | 'hand-wave' | 'nod' | 'shrug' | 'skate';
 
 export interface HeroConfig {
   position?: 'auto' | 'top' | 'bottom' | 'left' | 'right';
@@ -58,4 +58,4 @@ export interface OnboardingStep {
   onStepEnd?: () => void;
 }
 
-export type OnboardingMode = 'global' | 'contextual' | 'strategy' | 'persona' | 'gpt' | 'roleplay' | 'search' | 'avatar1' | 'avatar2' | 'staged' | 'practice' | null;
+export type OnboardingMode = 'global' | 'contextual' | 'strategy' | 'persona' | 'gpt' | 'roleplay' | 'search' | 'avatar1' | 'avatar2' | 'staged' | 'practice' | 'journey' | null;

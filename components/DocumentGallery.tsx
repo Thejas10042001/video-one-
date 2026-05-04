@@ -945,6 +945,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                         <motion.div 
                           layout
                           key={doc.id}
+                          id={index === 0 ? "tour-doc-item-0" : undefined}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.9 }}
@@ -1319,6 +1320,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
                 <div className="flex items-center gap-4">
                   {!isEditing ? (
                     <button 
+                      id="tour-doc-edit-btn"
                       onClick={() => setIsEditing(true)}
                       className="px-8 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all shadow-sm"
                     >
