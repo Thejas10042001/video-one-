@@ -7,6 +7,16 @@ export interface TooltipOffset {
   y: number;
 }
 
+export type HeroExpression = 'neutral' | 'happy' | 'thinking' | 'serious' | 'surprised' | 'explaining' | 'celebrating';
+export type HeroGesture = 'none' | 'point' | 'wave' | 'nod' | 'shrug' | 'skate';
+
+export interface HeroConfig {
+  position?: 'auto' | 'top' | 'bottom' | 'left' | 'right';
+  expression: HeroExpression;
+  gesture: HeroGesture;
+  scale?: number;
+}
+
 export interface OnboardingStep {
   /** Uniquely identifies the step */
   id: string;
@@ -19,6 +29,9 @@ export interface OnboardingStep {
   
   /** Action to simulate when this step is reached */
   action: OnboardingAction;
+  
+  /** Hero mascot configuration */
+  hero?: HeroConfig;
   
   /** Value to insert if action is 'type' */
   value?: string;

@@ -1,12 +1,57 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { motion, AnimatePresence, useSpring, useMotionValue } from 'motion/react';
 import { useOnboardingStore } from '../../store/onboardingStore';
+import { HeroExpression, HeroGesture } from '../../types/onboarding';
+import { HeroMascot } from './HeroMascot';
+import { RocketExhaust } from './RocketExhaust';
 
 export const OnboardingOverlay: React.FC = () => {
   const { isActive, currentSteps, currentStepIndex, isPaused } = useOnboardingStore();
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const [isMoving, setIsMoving] = useState(false);
   const currentStep = currentSteps[currentStepIndex];
-  const cursorRef = useRef<HTMLDivElement>(null);
+  
+  // Hero Position Motion Values
+  const heroX = useSpring(0, { damping: 20, stiffness: 80 });
+  const heroY = useSpring(window.innerHeight, { damping: 20, stiffness: 80 });
+  const [heroPos, setHeroPos] = useState({ x: 0, y: window.innerHeight });
+
+  const heroConfig = useMemo(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const defaultMeta = { expression: 'neutral' as HeroExpression, gesture: 'none' as HeroGesture, scale: isMobile ? 0.7 : 1 };
+    
+    if (!currentStep?.hero) return defaultMeta;
+    
+    // Auto-map expressions if keywords are found and expression is neutral
+    let expression: HeroExpression = currentStep.hero.expression;
+    let gesture: HeroGesture = currentStep.hero.gesture;
+
+    if (expression === 'neutral') {
+      const text = currentStep.text.toLowerCase();
+      if (text.includes('welcome') || text.includes('ready') || text.includes('success')) expression = 'happy';
+      else if (text.includes('strategy') || text.includes('analyze') || text.includes('think')) expression = 'thinking';
+      else if (text.includes('important') || text.includes('note') || text.includes('caution')) expression = 'serious';
+      
+      if (text.includes('click') || text.includes('select') || text.includes('here')) gesture = 'point';
+    }
+
+    return { 
+      expression, 
+      gesture, 
+      scale: (currentStep.hero.scale || 1) * (isMobile ? 0.7 : 1),
+      position: currentStep.hero.position || 'auto'
+    };
+  }, [currentStep]);
+
+  // Update canvas-based rocket exhaust position
+  useEffect(() => {
+    const unsubscribeX = heroX.on('change', (v) => setHeroPos(p => ({ ...p, x: v })));
+    const unsubscribeY = heroY.on('change', (v) => setHeroPos(p => ({ ...p, y: v })));
+    return () => {
+      unsubscribeX();
+      unsubscribeY();
+    };
+  }, [heroX, heroY]);
 
   useEffect(() => {
     if (isActive && currentStep) {
@@ -43,17 +88,50 @@ export const OnboardingOverlay: React.FC = () => {
     };
 
     updateTarget();
+    
+    // Set Moving state for hero
+    setIsMoving(true);
+    const movingTimer = setTimeout(() => setIsMoving(false), 800);
+
     window.addEventListener('resize', updateTarget);
     window.addEventListener('scroll', updateTarget, true);
 
     const interval = setInterval(updateTarget, 500); // Poll in case of layout changes
 
     return () => {
+      clearTimeout(movingTimer);
       window.removeEventListener('resize', updateTarget);
       window.removeEventListener('scroll', updateTarget, true);
       clearInterval(interval);
     };
   }, [isActive, currentStep, currentStepIndex]);
+
+  // Update Hero Position based on target
+  useEffect(() => {
+    if (targetRect) {
+      const heroConfig = currentStep?.hero;
+      const pos = heroConfig?.position || 'auto';
+      
+      let x = targetRect.left + targetRect.width / 2;
+      let y = targetRect.top + targetRect.height / 2;
+
+      // Position hero near target
+      if (pos === 'top' || (pos === 'auto' && targetRect.top > 200)) {
+        y = targetRect.top - 140;
+      } else if (pos === 'bottom' || (pos === 'auto' && targetRect.bottom < window.innerHeight - 200)) {
+        y = targetRect.bottom + 40;
+      } else if (pos === 'left') {
+        x = targetRect.left - 140;
+      } else {
+        x = targetRect.right + 40;
+      }
+
+      heroX.set(x - 80); // Center hero (w-40 is 160px)
+      heroY.set(y);
+    } else if (!isActive) {
+      heroY.set(window.innerHeight + 200);
+    }
+  }, [targetRect, isActive, heroX, heroY, currentStep]);
 
   useEffect(() => {
     if (!isActive || isPaused || !currentStep) return;
@@ -160,13 +238,29 @@ export const OnboardingOverlay: React.FC = () => {
         />
       </motion.div>
 
+      {/* Hero Mascot & Rocket Effect */}
+      <RocketExhaust isMoving={isMoving} position={heroPos} />
+      
+      <motion.div
+        style={{ x: heroX, y: heroY }}
+        className="fixed top-0 left-0 z-[10002]"
+        initial={{ y: window.innerHeight, x: -200 }}
+        animate={{ scale: heroConfig.scale }}
+      >
+        <HeroMascot 
+          expression={heroConfig.expression} 
+          gesture={heroConfig.gesture}
+          isMoving={isMoving}
+        />
+      </motion.div>
+
       {/* Fake Animated Cursor */}
       <motion.div
-        ref={cursorRef}
         animate={{
           x: targetRect.left + targetRect.width / 2,
           y: targetRect.top + targetRect.height / 2,
-          scale: currentStep.action === 'click' ? [1, 0.8, 1] : 1
+          scale: currentStep.action === 'click' ? [1, 0.8, 1] : 1,
+          opacity: currentStep.action === 'click' ? 1 : 0
         }}
         transition={{ 
           x: { type: 'spring', damping: 20, stiffness: 100 },
@@ -176,17 +270,17 @@ export const OnboardingOverlay: React.FC = () => {
         className="absolute top-0 left-0"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5.65376 12.3822L17.4452 3.10505C18.6656 2.14447 20.354 3.83282 19.3934 5.05327L10.1163 16.8447C9.37934 17.7816 8.01428 17.7126 7.37129 16.7077L5.34005 13.5332C4.85764 12.7792 5.05047 11.8542 5.65376 12.3822Z" fill="white" stroke="black" strokeWidth="2" />
+          <path d="M5.65376 12.3822L17.4452 3.10505C18.6656 2.14447 20.354 3.83282 19.3934 5.05327L10.1163 16.8447C9.37934 17.7816 8.01428 17.7126 7.37129 16.7077L5.34005 13.5332C4.85764 12.7792 5.05047 11.8542 5.65376 12.3822Z" fill="white" stroke="#6366f1" strokeWidth="2" />
         </svg>
       </motion.div>
 
       {/* Tooltip */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         <motion.div
           key={currentStep.id}
-          initial={{ opacity: 0, scale: 0.9, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 10 }}
+          initial={{ opacity: 0, scale: 0.9, x: -20 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          exit={{ opacity: 0, scale: 0.9, x: 20 }}
           style={{
             position: 'absolute',
             ...(tooltipPosition === 'top' || tooltipPosition === 'bottom' 
@@ -197,14 +291,28 @@ export const OnboardingOverlay: React.FC = () => {
             ...(tooltipPosition === 'left' ? { top: tooltipStyle.top, right: tooltipStyle.right, transform: 'translateY(-50%)' } : {}),
             ...(tooltipPosition === 'right' ? { top: tooltipStyle.top, left: tooltipStyle.left, transform: 'translateY(-50%)' } : {}),
           }}
-          className="bg-indigo-600 text-white p-4 rounded-xl shadow-2xl max-w-xs pointer-events-auto z-[10000]"
+          className="bg-slate-900 border border-slate-700/50 text-white p-6 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] max-w-sm pointer-events-auto z-[10002] backdrop-blur-xl"
         >
-          <p className="text-sm font-bold leading-relaxed">{currentStep.text}</p>
-          <div className={`absolute w-3 h-3 bg-indigo-600 rotate-45 ${
-            tooltipPosition === 'top' ? 'bottom-[-6px] left-1/2 -translate-x-1/2' :
+          <div className="flex items-start gap-4">
+            <div className="w-1 h-12 bg-indigo-500 rounded-full mt-1 shrink-0" />
+            <p className="text-sm font-medium leading-relaxed text-slate-200">
+              {currentStep.text.split('').map((char, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: i * 0.02 }}
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </p>
+          </div>
+          <div className={`absolute w-3 h-3 bg-slate-900 border-l border-t border-slate-700/50 rotate-45 ${
+            tooltipPosition === 'top' ? 'bottom-[-6px] left-1/2 -translate-x-1/2 rotate-[225deg]' :
             tooltipPosition === 'bottom' ? 'top-[-6px] left-1/2 -translate-x-1/2' :
-            tooltipPosition === 'left' ? 'right-[-6px] top-1/2 -translate-y-1/2' :
-            'left-[-6px] top-1/2 -translate-y-1/2'
+            tooltipPosition === 'left' ? 'right-[-6px] top-1/2 -translate-y-1/2 rotate-[135deg]' :
+            'left-[-6px] top-1/2 -translate-y-1/2 rotate-[-45deg]'
           }`} />
         </motion.div>
       </AnimatePresence>

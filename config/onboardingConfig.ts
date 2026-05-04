@@ -11,28 +11,48 @@ export const GLOBAL_TOUR_STEPS: OnboardingStep[] = [
     tooltipOffset: { x: 10, y: 0 },
     onStepStart: () => console.log('Welcome step started'),
     scroll: true,
-    scrollBehavior: 'smooth'
+    scrollBehavior: 'smooth',
+    hero: {
+      expression: 'happy',
+      gesture: 'wave',
+      position: 'auto'
+    }
   },
   {
     id: 'step-2',
     target: '#tour-tab-strategy',
     text: 'The Strategy Lab synthesizes high-fidelity sales strategies for your deal.',
     action: 'hover',
-    position: 'right'
+    position: 'right',
+    hero: {
+      expression: 'thinking',
+      gesture: 'none',
+      position: 'auto'
+    }
   },
   {
     id: 'step-3',
     target: '#tour-tab-gpt',
     text: 'Spiked GPT: This is your real-time strategic advisor. Query it during your deal preparation to extract winning soundbites, competitive counters, and grounded data points from your library.',
     action: 'hover',
-    position: 'right'
+    position: 'right',
+    hero: {
+      expression: 'explaining',
+      gesture: 'point',
+      position: 'auto'
+    }
   },
   {
     id: 'step-4',
     target: '#tour-tab-roleplay',
     text: 'Roleplay Simulation: The ultimate testing ground. Initiate high-fidelity, voice-enabled simulations with AI personas that mirror your real stakeholder\'s behavior and resistance levels.',
     action: 'hover',
-    position: 'right'
+    position: 'right',
+    hero: {
+      expression: 'celebrating',
+      gesture: 'none',
+      position: 'auto'
+    }
   }
 ];
 
