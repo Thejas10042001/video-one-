@@ -3,7 +3,6 @@ import { motion, AnimatePresence, useSpring, useMotionValue } from 'motion/react
 import { useOnboardingStore } from '../../store/onboardingStore';
 import { HeroExpression, HeroGesture } from '../../types/onboarding';
 import { HeroMascot } from './HeroMascot';
-import { ICONS } from '../../constants';
 
 export const OnboardingOverlay: React.FC = () => {
   const { isActive, currentSteps, currentStepIndex, isPaused } = useOnboardingStore();
@@ -14,11 +13,20 @@ export const OnboardingOverlay: React.FC = () => {
   // Hero Position Motion Values
   const heroX = useSpring(0, { damping: 20, stiffness: 80 });
   const heroY = useSpring(window.innerHeight, { damping: 20, stiffness: 80 });
-  
-  // Anchored Tooltip Position
-  const tooltipX = useSpring(0, { damping: 25, stiffness: 100 });
-  const tooltipY = useSpring(0, { damping: 25, stiffness: 100 });
   const [heroPos, setHeroPos] = useState({ x: 0, y: window.innerHeight });
+
+  // Sync tooltip position perfectly with hero using derived motion values
+  const tooltipX = useSpring(0, { damping: 20, stiffness: 80 });
+  const tooltipY = useSpring(window.innerHeight, { damping: 20, stiffness: 80 });
+
+  useEffect(() => {
+    const unsubX = heroX.on('change', (v) => tooltipX.set(v + 80));
+    const unsubY = heroY.on('change', (v) => tooltipY.set(v - 10));
+    return () => {
+      unsubX();
+      unsubY();
+    };
+  }, [heroX, heroY, tooltipX, tooltipY]);
 
   const heroConfig = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -110,35 +118,22 @@ export const OnboardingOverlay: React.FC = () => {
       let y = targetRect.top + targetRect.height / 2;
 
       // Position hero near target
-      if (pos === 'top' || (pos === 'auto' && targetRect.top > 300)) {
-        y = targetRect.top - 160;
-      } else if (pos === 'bottom' || (pos === 'auto' && targetRect.bottom < window.innerHeight - 300)) {
-        y = targetRect.bottom + 60;
-      } else if (pos === 'left' || (pos === 'auto' && targetRect.left > 300)) {
-        x = targetRect.left - 160;
-        y = targetRect.top + targetRect.height / 2;
+      if (pos === 'top' || (pos === 'auto' && targetRect.top > 200)) {
+        y = targetRect.top - 140;
+      } else if (pos === 'bottom' || (pos === 'auto' && targetRect.bottom < window.innerHeight - 200)) {
+        y = targetRect.bottom + 40;
+      } else if (pos === 'left') {
+        x = targetRect.left - 140;
       } else {
-        x = targetRect.right + 60;
-        y = targetRect.top + targetRect.height / 2;
+        x = targetRect.right + 40;
       }
 
-      heroX.set(x - 80); 
-      heroY.set(y - 80);
-
-      // Position Tooltip Near Target
-      let tx = targetRect.left + targetRect.width / 2;
-      let ty = targetRect.top - 40;
-
-      if (ty < 150) {
-        ty = targetRect.bottom + 40;
-      }
-
-      tooltipX.set(tx);
-      tooltipY.set(ty);
+      heroX.set(x - 80); // Center hero (w-40 is 160px)
+      heroY.set(y);
     } else if (!isActive) {
       heroY.set(window.innerHeight + 200);
     }
-  }, [targetRect, isActive, heroX, heroY, tooltipX, tooltipY, currentStep]);
+  }, [targetRect, isActive, heroX, heroY, currentStep]);
 
   useEffect(() => {
     if (!isActive || isPaused || !currentStep) return;
@@ -174,24 +169,6 @@ export const OnboardingOverlay: React.FC = () => {
   
   return (
     <div className="fixed inset-0 z-[100000] pointer-events-none overflow-hidden">
-      {/* Journey Mode Title Banner */}
-      <motion.div 
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="fixed top-0 left-0 right-0 z-[1000] p-6 flex justify-center pointer-events-none"
-      >
-        <div className="bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 rounded-full px-8 py-3 flex items-center gap-4 shadow-2xl">
-          <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.8)]" />
-          <h1 className="text-[10px] font-black uppercase tracking-[0.5em] text-white">
-            Spiked AI – <span className="text-indigo-400">Interactive User Journey</span>
-          </h1>
-          <div className="w-px h-4 bg-slate-800" />
-          <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-            Step {currentStepIndex + 1} of {currentSteps.length}
-          </span>
-        </div>
-      </motion.div>
-
       {/* Dim Background with Highlight Hole */}
       <svg className="absolute inset-0 w-full h-full z-[10]">
         <defs>
@@ -219,13 +196,8 @@ export const OnboardingOverlay: React.FC = () => {
           width: targetRect.width + (highlightPadding * 2),
           height: targetRect.height + (highlightPadding * 2)
         }}
-        className="absolute border-2 border-indigo-500 rounded-lg shadow-[0_0_30px_rgba(79,70,229,0.8)] z-[20]"
+        className="absolute border-2 border-indigo-500 rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.5)] z-[20]"
       >
-        <motion.div
-          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="absolute inset-0 bg-indigo-500/10 rounded-lg blur-xl"
-        />
         <motion.div
           animate={{ scale: [1, 1.05, 1], opacity: [0.5, 1, 0.5] }}
           transition={{ repeat: Infinity, duration: 2 }}
@@ -252,53 +224,27 @@ export const OnboardingOverlay: React.FC = () => {
         />
       </motion.div>
 
-      {/* Fake Animated Cursor with Intelligence */}
+      {/* Fake Animated Cursor */}
       <motion.div
         animate={{
           x: targetRect.left + targetRect.width / 2,
           y: targetRect.top + targetRect.height / 2,
-          scale: currentStep.action === 'click' ? [1, 0.8, 1.2, 1] : 1,
-          opacity: 1
+          scale: currentStep.action === 'click' ? [1, 0.8, 1] : 1,
+          opacity: currentStep.action === 'click' ? 1 : 0
         }}
         transition={{ 
-          x: { type: 'spring', damping: 25, stiffness: 120 },
-          y: { type: 'spring', damping: 25, stiffness: 120 },
-          scale: { duration: 0.4, ease: "easeInOut" }
+          x: { type: 'spring', damping: 20, stiffness: 100 },
+          y: { type: 'spring', damping: 20, stiffness: 100 },
+          scale: { type: 'tween', duration: 0.3 }
         }}
-        className="absolute top-0 left-0 z-[50000] drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]"
+        className="absolute top-0 left-0 z-[50]"
       >
-        <div className="relative">
-          {/* Cursor Core */}
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="filter drop-shadow-xl">
-            <path d="M5.65376 12.3822L17.4452 3.10505C18.6656 2.14447 20.354 3.83282 19.3934 5.05327L10.1163 16.8447C9.37934 17.7816 8.01428 17.7126 7.37129 16.7077L5.34005 13.5332C4.85764 12.7792 5.05047 11.8542 5.65376 12.3822Z" fill="white" stroke="#6366f1" strokeWidth="2" />
-          </svg>
-          
-          {/* Pulse Effect for Actions */}
-          <AnimatePresence>
-            {currentStep.action === 'click' && (
-              <motion.div
-                initial={{ scale: 0.5, opacity: 0.8 }}
-                animate={{ scale: 2.5, opacity: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, repeat: Infinity }}
-                className="absolute inset-0 bg-indigo-500 rounded-full blur-md"
-              />
-            )}
-          </AnimatePresence>
-
-          {/* Magnetic Glow */}
-          <motion.div
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="absolute inset-0 bg-indigo-400/30 blur-2xl rounded-full -z-10"
-          />
-        </div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5.65376 12.3822L17.4452 3.10505C18.6656 2.14447 20.354 3.83282 19.3934 5.05327L10.1163 16.8447C9.37934 17.7816 8.01428 17.7126 7.37129 16.7077L5.34005 13.5332C4.85764 12.7792 5.05047 11.8542 5.65376 12.3822Z" fill="white" stroke="#6366f1" strokeWidth="2" />
+        </svg>
       </motion.div>
 
-      {/* Tooltip (Speech Bubble) - Refined Pos & Style */}
+      {/* Tooltip (Speech Bubble) */}
       <motion.div
         style={{ x: tooltipX, y: tooltipY }}
         initial={{ opacity: 0, scale: 0.8 }}
@@ -306,29 +252,26 @@ export const OnboardingOverlay: React.FC = () => {
           opacity: 1, 
           scale: 1,
         }}
-        className="fixed z-[100001] bg-slate-900 border-2 border-indigo-500/50 text-white p-6 rounded-[2.5rem] shadow-[0_32px_128px_-16px_rgba(0,0,0,0.8)] max-w-sm pointer-events-auto backdrop-blur-2xl -translate-x-1/2 -translate-y-full mb-6"
+        className="fixed z-[40] bg-slate-900 border border-slate-700/50 text-white p-6 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] max-w-sm pointer-events-auto backdrop-blur-xl -translate-x-1/2 -translate-y-full mb-2"
       >
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-900/20">
-            <ICONS.Brain className="w-5 h-5" />
-          </div>
+          <div className="w-1 h-12 bg-indigo-500 rounded-full mt-1 shrink-0" />
           <div className="flex-1 min-w-0">
-            <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-2">Neural Guidance</h4>
             <AnimatePresence mode="wait">
               <motion.p
                 key={currentStep.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                className="text-sm font-black leading-relaxed text-white whitespace-pre-line"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="text-sm font-medium leading-relaxed text-slate-200"
               >
                 {currentStep.text}
               </motion.p>
             </AnimatePresence>
           </div>
         </div>
-        {/* Tail */}
-        <div className="absolute w-4 h-4 bg-slate-900 border-r-2 border-b-2 border-indigo-500/50 rotate-45 bottom-[-10px] left-1/2 -translate-x-1/2" />
+        {/* Tail pointing to Mascot */}
+        <div className="absolute w-3 h-3 bg-slate-900 border-l border-t border-slate-700/50 rotate-[225deg] bottom-[-6px] left-1/2 -translate-x-1/2" />
       </motion.div>
 
     </div>

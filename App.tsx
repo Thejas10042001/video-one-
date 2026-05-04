@@ -169,16 +169,8 @@ const App: React.FC = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isSupportPage, setIsSupportPage] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const { mode, isActive, currentStepIndex, startOnboarding } = useOnboardingStore();
-  const isJourneyMode = mode === 'journey' && isActive;
-
-  useEffect(() => {
-    if (!isJourneyMode && !user && analysis) {
-      setAnalysis(null);
-    }
-  }, [isJourneyMode, analysis, user]);
-
   const [darkMode] = useState(true);
+  const { startOnboarding } = useOnboardingStore();
 
   const startTabOnboarding = useCallback(() => {
     switch (activeTab) {
@@ -608,7 +600,7 @@ const App: React.FC = () => {
   const runAnalysis = useCallback(async (currentContext?: MeetingContext, isAuto = false) => {
     const effectiveContext = currentContext || meetingContext;
     
-    if (activeDocuments.length === 0 && !isJourneyMode) {
+    if (activeDocuments.length === 0) {
       if (!isAuto) setError("Please ensure at least one document (from library or upload) is ready for analysis.");
       return;
     }
@@ -640,64 +632,20 @@ const App: React.FC = () => {
     }, 400);
 
     try {
-      let result;
-      if (isJourneyMode) {
-        // Mock journey result to enable Sidebar and subsequent steps
-        result = {
-          snapshot: {
-            role: "Strategic Decision Maker",
-            roleConfidence: 0.95,
-            priorities: [],
-            likelyObjections: [],
-            decisionStyle: "Data-Driven",
-            riskTolerance: "Moderate",
-            tone: "Professional",
-            metrics: { riskToleranceValue: 50, strategicPriorityFocus: 80, analyticalDepth: 70, directness: 60, innovationAppetite: 40 },
-            personaIdentity: "Neural Architect",
-            decisionLogic: "Algorithmic Efficiency",
-            roleCitation: { snippet: "Core strategic lead", sourceFile: "Protocol.pdf" },
-            decisionStyleCitation: { snippet: "Uses data for all moves", sourceFile: "Protocol.pdf" },
-            riskToleranceCitation: { snippet: "Balanced approach", sourceFile: "Protocol.pdf" }
-          },
-          documentInsights: {
-            entities: [],
-            structure: { sections: [], keyHeadings: [], detectedTablesSummary: "" },
-            summaries: [],
-            materialSynthesis: "Neural Sales Intelligence Protocol engaged for journey mode simulation."
-          },
-          groundMatrix: [],
-          competitiveHub: {
-            cognigy: { name: "Cognigy", overview: "", threatProfile: "Direct", strengths: [], weaknesses: [], opportunities: [], threats: [], ourWedge: "", citation: { snippet: "", sourceFile: "" } },
-            amelia: { name: "Amelia", overview: "", threatProfile: "Direct", strengths: [], weaknesses: [], opportunities: [], threats: [], ourWedge: "", citation: { snippet: "", sourceFile: "" } },
-            others: []
-          },
-          openingLines: [],
-          predictedQuestions: [],
-          strategicQuestionsToAsk: [],
-          objectionHandling: [],
-          toneGuidance: { wordsToUse: [], wordsToAvoid: [], sentenceLength: "Medium", technicalDepth: "High" },
-          finalCoaching: { dos: [], donts: [], finalAdvice: "Dominate the deal cycle." },
-          reportSections: { introBackground: "", technicalDiscussion: "", productIntegration: "" }
-        } as AnalysisResult;
-        
-        // Artificial delay for User Journey feel
-        await new Promise(resolve => setTimeout(resolve, 3000));
-      } else {
-        const combinedContent = activeDocuments.map(d => `DOC NAME: ${d.name}\n${d.content}`).join('\n\n');
-        result = await analyzeSalesContext(combinedContent, effectiveContext);
-      }
+      const combinedContent = activeDocuments.map(d => `DOC NAME: ${d.name}\n${d.content}`).join('\n\n');
+      const result = await analyzeSalesContext(combinedContent, effectiveContext);
       
       clearInterval(progressInterval);
       setLoadingProgress(100);
       
       setTimeout(async () => {
         setAnalysis(result);
-        lastAnalyzedHash.current = isJourneyMode ? 'journey' : currentHash;
+        lastAnalyzedHash.current = currentHash;
         setIsAnalyzing(false);
         setActiveTab('context');
         
         // Save context and analysis to Firebase
-        if (!isAuto && !isJourneyMode) {
+        if (!isAuto) {
           await saveMeetingContext({ meetingContext: effectiveContext, selectedLibraryDocIds, analysis: result });
         }
       }, 800);
@@ -765,13 +713,8 @@ const App: React.FC = () => {
     return <SupportChatbot />;
   }
 
-  if (!user && (!isJourneyMode || currentStepIndex === 0)) {
-    return (
-      <div className="bg-slate-950 min-h-screen">
-        <Auth />
-        <OnboardingManager />
-      </div>
-    );
+  if (!user) {
+    return <Auth />;
   }
 
   // Calculate dynamic font scale for the sidebar based on its width
