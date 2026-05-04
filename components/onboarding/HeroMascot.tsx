@@ -6,9 +6,26 @@ interface HeroMascotProps {
   expression: HeroExpression;
   gesture: HeroGesture;
   isMoving: boolean;
+  lookAt?: { x: number; y: number };
+  heroPos?: { x: number; y: number };
 }
 
-export const HeroMascot: React.FC<HeroMascotProps> = ({ expression, gesture, isMoving }) => {
+export const HeroMascot: React.FC<HeroMascotProps> = ({ expression, gesture, isMoving, lookAt, heroPos }) => {
+  // Eye gaze calculation
+  const gazeOffset = useMemo(() => {
+    if (!lookAt || !heroPos) return { x: 0, y: 0 };
+    
+    const dx = lookAt.x - (heroPos.x + 80); // 80 is half of w-40 (160px)
+    const dy = lookAt.y - (heroPos.y + 80);
+    const angle = Math.atan2(dy, dx);
+    const dist = Math.min(2, Math.sqrt(dx * dx + dy * dy) / 100); // Max 2px offset
+    
+    return {
+      x: Math.cos(angle) * dist,
+      y: Math.sin(angle) * dist
+    };
+  }, [lookAt, heroPos]);
+
   // Expression variants
   const mouthPath = useMemo(() => {
     switch (expression) {
@@ -154,12 +171,12 @@ export const HeroMascot: React.FC<HeroMascotProps> = ({ expression, gesture, isM
             
             {/* Eyes */}
             <motion.ellipse 
-              cx="45" cy={eyeY} rx="1.5" ry={eyeHeight} fill="#0f172a" 
+              cx={45 + gazeOffset.x} cy={eyeY + gazeOffset.y} rx="1.5" ry={eyeHeight} fill="#0f172a" 
               animate={{ scaleY: [1, 0.1, 1] }} 
               transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
             />
             <motion.ellipse 
-              cx="55" cy={eyeY} rx="1.5" ry={eyeHeight} fill="#0f172a" 
+              cx={55 + gazeOffset.x} cy={eyeY + gazeOffset.y} rx="1.5" ry={eyeHeight} fill="#0f172a" 
               animate={{ scaleY: [1, 0.1, 1] }} 
               transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
             />

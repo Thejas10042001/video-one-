@@ -13,6 +13,20 @@ export const OnboardingOverlay: React.FC = () => {
   // Hero Position Motion Values
   const heroX = useSpring(0, { damping: 20, stiffness: 80 });
   const heroY = useSpring(window.innerHeight, { damping: 20, stiffness: 80 });
+  const [heroPos, setHeroPos] = useState({ x: 0, y: window.innerHeight });
+
+  // Sync tooltip position perfectly with hero using derived motion values
+  const tooltipX = useSpring(0, { damping: 20, stiffness: 80 });
+  const tooltipY = useSpring(window.innerHeight, { damping: 20, stiffness: 80 });
+
+  useEffect(() => {
+    const unsubX = heroX.on('change', (v) => tooltipX.set(v + 80));
+    const unsubY = heroY.on('change', (v) => tooltipY.set(v - 10));
+    return () => {
+      unsubX();
+      unsubY();
+    };
+  }, [heroX, heroY, tooltipX, tooltipY]);
 
   const heroConfig = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -151,47 +165,12 @@ export const OnboardingOverlay: React.FC = () => {
 
   if (!isActive || !currentStep || !targetRect) return null;
 
-  const tooltipPosition = currentStep.position || 'bottom';
   const highlightPadding = currentStep.highlightPadding ?? 4;
-  const tooltipOffset = currentStep.tooltipOffset ?? { x: 0, y: 0 };
   
-  const getTooltipStyle = () => {
-    const padding = 12;
-    switch (tooltipPosition) {
-      case 'top':
-        return { 
-          bottom: window.innerHeight - targetRect.top + padding + tooltipOffset.y, 
-          left: targetRect.left + (targetRect.width / 2) + tooltipOffset.x 
-        };
-      case 'bottom':
-        return { 
-          top: targetRect.bottom + padding + tooltipOffset.y, 
-          left: targetRect.left + (targetRect.width / 2) + tooltipOffset.x 
-        };
-      case 'left':
-        return { 
-          top: targetRect.top + (targetRect.height / 2) + tooltipOffset.y, 
-          right: window.innerWidth - targetRect.left + padding + tooltipOffset.x 
-        };
-      case 'right':
-        return { 
-          top: targetRect.top + (targetRect.height / 2) + tooltipOffset.y, 
-          left: targetRect.right + padding + tooltipOffset.x 
-        };
-      default:
-        return { 
-          top: targetRect.bottom + padding + tooltipOffset.y, 
-          left: targetRect.left + (targetRect.width / 2) + tooltipOffset.x 
-        };
-    }
-  };
-
-  const tooltipStyle = getTooltipStyle();
-
   return (
-    <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden">
+    <div className="fixed inset-0 z-[100000] pointer-events-none overflow-hidden">
       {/* Dim Background with Highlight Hole */}
-      <svg className="absolute inset-0 w-full h-full">
+      <svg className="absolute inset-0 w-full h-full z-[10]">
         <defs>
           <mask id="hole">
             <rect width="100%" height="100%" fill="white" />
@@ -217,7 +196,7 @@ export const OnboardingOverlay: React.FC = () => {
           width: targetRect.width + (highlightPadding * 2),
           height: targetRect.height + (highlightPadding * 2)
         }}
-        className="absolute border-2 border-indigo-500 rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.5)]"
+        className="absolute border-2 border-indigo-500 rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.5)] z-[20]"
       >
         <motion.div
           animate={{ scale: [1, 1.05, 1], opacity: [0.5, 1, 0.5] }}
@@ -227,10 +206,9 @@ export const OnboardingOverlay: React.FC = () => {
       </motion.div>
 
       {/* Hero Mascot */}
-      
       <motion.div
         style={{ x: heroX, y: heroY }}
-        className="fixed top-0 left-0 z-[10002]"
+        className="fixed top-0 left-0 z-[30]"
         initial={{ y: window.innerHeight, x: -200 }}
         animate={{ scale: heroConfig.scale }}
       >
@@ -238,6 +216,11 @@ export const OnboardingOverlay: React.FC = () => {
           expression={heroConfig.expression} 
           gesture={heroConfig.gesture}
           isMoving={isMoving}
+          lookAt={{ 
+            x: targetRect.left + targetRect.width / 2, 
+            y: targetRect.top + targetRect.height / 2 
+          }}
+          heroPos={heroPos}
         />
       </motion.div>
 
@@ -254,55 +237,43 @@ export const OnboardingOverlay: React.FC = () => {
           y: { type: 'spring', damping: 20, stiffness: 100 },
           scale: { type: 'tween', duration: 0.3 }
         }}
-        className="absolute top-0 left-0"
+        className="absolute top-0 left-0 z-[50]"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M5.65376 12.3822L17.4452 3.10505C18.6656 2.14447 20.354 3.83282 19.3934 5.05327L10.1163 16.8447C9.37934 17.7816 8.01428 17.7126 7.37129 16.7077L5.34005 13.5332C4.85764 12.7792 5.05047 11.8542 5.65376 12.3822Z" fill="white" stroke="#6366f1" strokeWidth="2" />
         </svg>
       </motion.div>
 
-      {/* Tooltip */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep.id}
-          initial={{ opacity: 0, scale: 0.9, x: -20 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          exit={{ opacity: 0, scale: 0.9, x: 20 }}
-          style={{
-            position: 'absolute',
-            ...(tooltipPosition === 'top' || tooltipPosition === 'bottom' 
-              ? { left: tooltipStyle.left, transform: 'translateX(-50%)' } 
-              : {}),
-            ...(tooltipPosition === 'top' ? { bottom: tooltipStyle.bottom } : {}),
-            ...(tooltipPosition === 'bottom' ? { top: tooltipStyle.top } : {}),
-            ...(tooltipPosition === 'left' ? { top: tooltipStyle.top, right: tooltipStyle.right, transform: 'translateY(-50%)' } : {}),
-            ...(tooltipPosition === 'right' ? { top: tooltipStyle.top, left: tooltipStyle.left, transform: 'translateY(-50%)' } : {}),
-          }}
-          className="bg-slate-900 border border-slate-700/50 text-white p-6 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] max-w-sm pointer-events-auto z-[10002] backdrop-blur-xl"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-1 h-12 bg-indigo-500 rounded-full mt-1 shrink-0" />
-            <p className="text-sm font-medium leading-relaxed text-slate-200">
-              {currentStep.text.split('').map((char, i) => (
-                <motion.span
-                  key={i}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.02 }}
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </p>
+      {/* Tooltip (Speech Bubble) */}
+      <motion.div
+        style={{ x: tooltipX, y: tooltipY }}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ 
+          opacity: 1, 
+          scale: 1,
+        }}
+        className="fixed z-[40] bg-slate-900 border border-slate-700/50 text-white p-6 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] max-w-sm pointer-events-auto backdrop-blur-xl -translate-x-1/2 -translate-y-full mb-2"
+      >
+        <div className="flex items-start gap-4">
+          <div className="w-1 h-12 bg-indigo-500 rounded-full mt-1 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={currentStep.id}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="text-sm font-medium leading-relaxed text-slate-200"
+              >
+                {currentStep.text}
+              </motion.p>
+            </AnimatePresence>
           </div>
-          <div className={`absolute w-3 h-3 bg-slate-900 border-l border-t border-slate-700/50 rotate-45 ${
-            tooltipPosition === 'top' ? 'bottom-[-6px] left-1/2 -translate-x-1/2 rotate-[225deg]' :
-            tooltipPosition === 'bottom' ? 'top-[-6px] left-1/2 -translate-x-1/2' :
-            tooltipPosition === 'left' ? 'right-[-6px] top-1/2 -translate-y-1/2 rotate-[135deg]' :
-            'left-[-6px] top-1/2 -translate-y-1/2 rotate-[-45deg]'
-          }`} />
-        </motion.div>
-      </AnimatePresence>
+        </div>
+        {/* Tail pointing to Mascot */}
+        <div className="absolute w-3 h-3 bg-slate-900 border-l border-t border-slate-700/50 rotate-[225deg] bottom-[-6px] left-1/2 -translate-x-1/2" />
+      </motion.div>
+
     </div>
   );
 };
