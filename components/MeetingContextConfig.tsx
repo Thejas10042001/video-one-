@@ -1249,6 +1249,7 @@ OPERATIONAL CONSTRAINTS:
       <div className="flex justify-center pb-12">
         {activeSection === 'vocal' ? (
           <button
+            id="tour-synthesize-btn"
             onClick={() => onSynthesize(context)}
             disabled={isAnalyzing}
             className="flex items-center gap-4 px-20 py-8 bg-indigo-600 text-white rounded-full font-black text-2xl shadow-2xl hover:bg-indigo-700 hover:scale-105 transition-all active:scale-95"
