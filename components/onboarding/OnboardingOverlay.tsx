@@ -236,7 +236,7 @@ export const OnboardingOverlay: React.FC = () => {
       {/* Hero Mascot */}
       <motion.div
         style={{ x: heroX, y: heroY }}
-        className="fixed top-0 left-0 z-[30]"
+        className="fixed top-0 left-0 z-[100005]"
         initial={{ y: window.innerHeight, x: -200 }}
         animate={{ scale: heroConfig.scale }}
       >

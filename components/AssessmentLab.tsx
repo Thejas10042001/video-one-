@@ -394,23 +394,32 @@ export const AssessmentLab: React.FC<AssessmentLabProps> = ({ activeDocuments, o
               </div>
             </div>
           </div>
+          <button 
+            onClick={() => startOnboarding('assignment', ASSIGNMENT_STEPS)}
+            className="flex items-center gap-2 px-6 py-3 bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600/30 transition-all group"
+          >
+            <ICONS.Info className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+            Explain this feature
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
-            <div className="space-y-6">
+            <div className="space-y-6" id="tour-question-params">
               <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 border-b-2 border-indigo-900/30 pb-3 flex items-center justify-between">
                 <span>Question Parameters</span>
                 <span className="text-[9px] lowercase tracking-normal opacity-60 font-bold">(+ and - indicated How many questions do you need so ai will generateAssessment Questions?)</span>
               </h4>
-              <ConfigRow label="Quiz" val={config.mcq} set={(v) => setConfig({ ...config, mcq: v })} icon={<ICONS.Document className="w-5 h-5" />} />
-              <ConfigRow label="Short Answer" val={config.short} set={(v) => setConfig({ ...config, short: v })} icon={<ICONS.Efficiency className="w-5 h-5" />} />
-              <ConfigRow label="Long Answer" val={config.long} set={(v) => setConfig({ ...config, long: v })} icon={<ICONS.Research className="w-5 h-5" />} />
-              <ConfigRow label="Verbal Delivery" val={config.mic} set={(v) => setConfig({ ...config, mic: v })} icon={<ICONS.Mic className="w-5 h-5" />} />
-              <ConfigRow label="Video Performance (Visual/Verbal)" val={config.video} set={(v) => setConfig({ ...config, video: v })} icon={<ICONS.Play className="w-5 h-5" />} />
+              <div id="tour-plus-minus">
+                <ConfigRow label="Quiz" val={config.mcq} set={(v) => setConfig({ ...config, mcq: v })} icon={<ICONS.Document className="w-5 h-5" />} />
+                <ConfigRow label="Short Answer" val={config.short} set={(v) => setConfig({ ...config, short: v })} icon={<ICONS.Efficiency className="w-5 h-5" />} />
+                <ConfigRow label="Long Answer" val={config.long} set={(v) => setConfig({ ...config, long: v })} icon={<ICONS.Research className="w-5 h-5" />} />
+                <ConfigRow label="Verbal Delivery" val={config.mic} set={(v) => setConfig({ ...config, mic: v })} icon={<ICONS.Mic className="w-5 h-5" />} />
+                <ConfigRow label="Video Performance (Visual/Verbal)" val={config.video} set={(v) => setConfig({ ...config, video: v })} icon={<ICONS.Play className="w-5 h-5" />} />
+              </div>
             </div>
 
-          <div className="space-y-12">
-            <div className="space-y-6">
+            <div className="space-y-12">
+            <div className="space-y-6" id="tour-session-timer">
               <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-rose-400 border-b-2 border-rose-900/30 pb-3">Environment Controls</h4>
               <div className="p-10 bg-slate-800/50 rounded-[3rem] space-y-6 shadow-inner border border-slate-800">
                 <div className="flex justify-between items-center">
@@ -426,7 +435,7 @@ export const AssessmentLab: React.FC<AssessmentLabProps> = ({ activeDocuments, o
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6" id="tour-difficulty-levels">
               <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-400 border-b-2 border-amber-900/30 pb-3">Cognitive Challenge Depth</h4>
               <div className="grid grid-cols-3 gap-4">
                 {(['Easy', 'Medium', 'Hard'] as DifficultyLevel[]).map((level) => (
@@ -441,10 +450,11 @@ export const AssessmentLab: React.FC<AssessmentLabProps> = ({ activeDocuments, o
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6" id="tour-perspectives">
               <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 border-b-2 border-indigo-900/30 pb-3">Synthesis Perspective</h4>
               <div className="grid grid-cols-2 gap-6">
                 <button 
+                  id="tour-perspective-document"
                   onClick={() => setPerspective('document')}
                   className={`flex flex-col items-center gap-4 p-8 rounded-[2.5rem] border-2 transition-all group ${perspective === 'document' ? 'bg-indigo-600 border-indigo-600 text-white shadow-2xl scale-[1.05]' : 'bg-slate-800 border-slate-700 hover:border-indigo-300 text-slate-500'}`}
                 >
@@ -455,6 +465,7 @@ export const AssessmentLab: React.FC<AssessmentLabProps> = ({ activeDocuments, o
                 </button>
 
                 <button 
+                  id="tour-perspective-customer"
                   onClick={() => setPerspective('customer')}
                   className={`flex flex-col items-center gap-4 p-8 rounded-[2.5rem] border-2 transition-all group ${perspective === 'customer' ? 'bg-indigo-600 border-indigo-600 text-white shadow-2xl scale-[1.05]' : 'bg-slate-800 border-slate-700 hover:border-indigo-300 text-slate-500'}`}
                 >

@@ -373,14 +373,49 @@ export const ASSIGNMENT_STEPS: OnboardingStep[] = [
     target: '#persona-lab-header',
     text: 'Assessment Lab (Assignment Node): This is your cognitive testing ground. Here you can pressure-test your knowledge of the deal documents before entering a live simulation.',
     action: 'hover',
-    position: 'bottom'
+    hero: { expression: 'happy', gesture: 'hand-wave', position: 'bottom' }
   },
   {
-    id: 'assignment-2',
-    target: '#tour-initiate-btn',
-    text: 'Initiate Assignment: Generate a custom neural assignment based on your documentary intelligence. You can choose different difficulty levels and perspectives.',
+    id: 'assignment-question-params',
+    target: '#tour-question-params',
+    text: 'Question Parameters: Define the scope of your neural evaluation. You can set the number of Multiple Choice (Quiz), Short Answer, and Long Answer questions. We also offer Verbal and Video performance modes for high-fidelity communication testing.',
     action: 'hover',
-    position: 'top'
+    hero: { expression: 'thinking', gesture: 'point', position: 'right' }
+  },
+  {
+    id: 'assignment-plus-minus',
+    target: '#tour-plus-minus',
+    text: 'Calibration: Use the plus (+) and minus (-) symbols to increase or decrease the volume of questions for each category. This allows you to focus on specific communication formats or conduct a comprehensive deal audit.',
+    action: 'hover',
+    hero: { expression: 'happy', gesture: 'point', position: 'left' }
+  },
+  {
+    id: 'assignment-timer',
+    target: '#tour-session-timer',
+    text: 'Session Timer: Establish a deadline protocol. Moving the slider sets the duration of the assessment, simulating real-world time pressure. Once the clock hits zero, your current progress is automatically submitted for analysis.',
+    action: 'hover',
+    hero: { expression: 'serious', gesture: 'hand-wave', position: 'top' }
+  },
+  {
+    id: 'assignment-difficulty',
+    target: '#tour-difficulty-levels',
+    text: 'Cognitive Challenge Depth: Select your difficulty tier. \n\n• Easy: Core logic validation. \n• Medium: Strategic inference requirements. \n• Hard: High-stakes adversarial logic and edge-case testing.',
+    action: 'hover',
+    hero: { expression: 'thinking', gesture: 'point', position: 'right' }
+  },
+  {
+    id: 'assignment-perspective',
+    target: '#tour-perspectives',
+    text: 'Synthesis Perspective: Choose the lens of your evaluation. \n\n• Document Focused: Validates your recall and understanding of technical record data. \n• Buyer Centric: Evaluates your ability to translate document data into customer-facing value and emotional resonance.',
+    action: 'hover',
+    hero: { expression: 'happy', gesture: 'point', position: 'left' }
+  },
+  {
+    id: 'assignment-initiate',
+    target: '#tour-initiate-btn',
+    text: 'Initiate Neural Assignment: Once all parameters are calibrated, click here to generate the interactive assignment. The AI will synthesize a custom assessment tailored to your documentary core.',
+    action: 'hover',
+    hero: { expression: 'happy', gesture: 'point', position: 'top' }
   }
 ];
 
