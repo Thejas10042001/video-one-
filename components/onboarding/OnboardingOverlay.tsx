@@ -111,14 +111,16 @@ export const OnboardingOverlay: React.FC = () => {
 
       // Position hero near target
       if (pos === 'top' || (pos === 'auto' && targetRect.top > 300)) {
-        y = targetRect.top - 160;
+        y = targetRect.top - 180;
+        x = targetRect.left + targetRect.width / 2 + 180; // Offset mascot to the right
       } else if (pos === 'bottom' || (pos === 'auto' && targetRect.bottom < window.innerHeight - 300)) {
-        y = targetRect.bottom + 60;
+        y = targetRect.bottom + 120;
+        x = targetRect.left + targetRect.width / 2 + 180;
       } else if (pos === 'left' || (pos === 'auto' && targetRect.left > 300)) {
-        x = targetRect.left - 160;
+        x = targetRect.left - 200;
         y = targetRect.top + targetRect.height / 2;
       } else {
-        x = targetRect.right + 60;
+        x = targetRect.right + 200;
         y = targetRect.top + targetRect.height / 2;
       }
 
@@ -127,10 +129,10 @@ export const OnboardingOverlay: React.FC = () => {
 
       // Position Tooltip Near Target
       let tx = targetRect.left + targetRect.width / 2;
-      let ty = targetRect.top - 40;
+      let ty = targetRect.top - 60;
 
-      if (ty < 150) {
-        ty = targetRect.bottom + 40;
+      if (ty < 200 && (pos === 'bottom' || pos === 'auto')) {
+        ty = targetRect.bottom + 60;
       }
 
       tooltipX.set(tx);

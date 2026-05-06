@@ -58,6 +58,34 @@ export const USER_JOURNEY_STEPS: OnboardingStep[] = [
     hero: { expression: 'happy', gesture: 'point', position: 'right' }
   },
   {
+    id: 'journey-8-kyc',
+    target: '#tour-kyc-select',
+    text: 'Strategic Grounding: Select your primary KYC document. Our AI will automatically extract seller details, client names, and overall product domain to anchor the simulation.',
+    action: 'none',
+    hero: { expression: 'thinking', gesture: 'point', position: 'bottom' }
+  },
+  {
+    id: 'journey-8-seller',
+    target: '#tour-seller-company',
+    text: 'Seller Identity: Verify your company details. This ensures the AI knows exactly which product value propositions to prioritize during the deal audit.',
+    action: 'none',
+    hero: { expression: 'neutral', gesture: 'point', position: 'top' }
+  },
+  {
+    id: 'journey-8-client',
+    target: '#tour-client-company',
+    text: 'Target Architecture: Confirm the client company name. This allows the system to ground its competitive intelligence against the specific market territory of your prospect.',
+    action: 'none',
+    hero: { expression: 'neutral', gesture: 'point', position: 'top' }
+  },
+  {
+    id: 'journey-8-focus',
+    target: '#tour-meeting-focus',
+    text: 'Strategic Intent: Define the meeting focus. Whether it\'s a first discovery or a high-stakes closing, this field dictates the neural weights of the entire simulation.',
+    action: 'none',
+    hero: { expression: 'thinking', gesture: 'point', position: 'top' }
+  },
+  {
     id: 'journey-9',
     target: '#tour-tab-persona',
     text: 'Calibrate the Target Buyer Persona. Select the psychological profile of your primary decision-maker to adjust the simulation\'s resistance levels.',
@@ -423,16 +451,58 @@ export const GPT_STEPS: OnboardingStep[] = [
   {
     id: 'gpt-1',
     target: '#gpt-header-core',
-    text: 'Spiked GPT: Your real-time strategic advisor. Use this to pull direct answers from your documentary library using grounded AI logic.',
+    text: 'Spiked GPT (Strategic Advisor): This is your grounded answering engine. It uses your documentary library to provide high-fidelity, cited strategic insights.',
     action: 'hover',
-    position: 'bottom'
+    hero: { expression: 'happy', gesture: 'hand-wave', position: 'bottom' }
   },
   {
-    id: 'gpt-2',
-    target: '#tour-gpt-query',
-    text: 'Neural Query: Type your questions here to extract specific competitive counters or data points from your intelligence nodes.',
+    id: 'gpt-sidebar',
+    target: '#tour-gpt-sidebar',
+    text: 'Session Hub: The left panel manages your intelligence history. Your strategic sessions are stored securely for 30 days and synced across devices.',
     action: 'hover',
-    position: 'top'
+    hero: { expression: 'neutral', gesture: 'point', position: 'right' }
+  },
+  {
+    id: 'gpt-session-list',
+    target: '#tour-gpt-session-list',
+    text: 'Intelligence Log: Review past inquiries and deal audits. You can see when each session was initiated and instantly resume any line of inquiry.',
+    action: 'hover',
+    hero: { expression: 'thinking', gesture: 'hand-wave', position: 'right' }
+  },
+  {
+    id: 'gpt-new-tab',
+    target: '#tour-gpt-new-tab',
+    text: 'External Protocol: Click this icon to open the current strategic session in a new browser tab. This is ideal for multi-window deal preparation or presenting to stakeholders.',
+    action: 'hover',
+    hero: { expression: 'happy', gesture: 'point', position: 'bottom' }
+  },
+  {
+    id: 'gpt-share',
+    target: '#tour-gpt-share',
+    text: 'Intelligence Sharing: Generate a secure, sharable link to this entire chat session. This allows your team to review the strategic insights synthesized during your deal audit.',
+    action: 'hover',
+    hero: { expression: 'happy', gesture: 'hand-wave', position: 'bottom' }
+  },
+  {
+    id: 'gpt-modes',
+    target: '#tour-gpt-mode-select',
+    text: 'Neural Engine Selection: \n\n• Fast Pulse: Rapid, low-latency responses for quick logic checks. \n• Cognitive: Balanced reasoning with psychological buyer profiling. \n• Cognitive Pro: Advanced strategic reasoning using specific corporate frameworks. \n• Deep Study: High-intensity documentary audit for extracting complex technical truths. \n• Visual Logic: Synthesizes strategic assets and visual deal roadmaps.',
+    action: 'hover',
+    hero: { expression: 'thinking', gesture: 'point', position: 'top' }
+  },
+  {
+    id: 'gpt-input',
+    target: '#tour-gpt-query',
+    text: 'Neural Query: Input your strategic inquiry. You can ask about competitive wedges, technical specs, or specific buyer fears. Use the "Synthesize" button to initiate the analysis.',
+    action: 'hover',
+    hero: { expression: 'happy', gesture: 'point', position: 'top' }
+  },
+  {
+    id: 'gpt-actions',
+    target: '#tour-gpt-query',
+    text: 'Synthesis Mastery: Every response features specialized controls. You can use "Regenerate" to re-synthesize an answer from a different angle, or "Copy" to instantly transfer insights to your deal notes.',
+    action: 'hover',
+    hero: { expression: 'thinking', gesture: 'hand-wave', position: 'top' }
   }
 ];
 
